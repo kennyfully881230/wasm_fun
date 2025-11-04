@@ -4,6 +4,14 @@ This repository is dedicated to sharing a collection of **small, open-source dem
 
 ---
 
+## Wasm Demos
+
+Daikonsuke Animation - [https://kennyfully881230.github.io/wasm_fun/daikonsuke_animation/daikonsuke_animation.html](https://kennyfully881230.github.io/wasm_fun/daikonsuke_animation/daikonsuke_animation.html)
+
+Wasm Canvas Drawing Demo - [https://kennyfully881230.github.io/wasm_fun/wasm_canvas_drawing_demo/wasm_canvas_drawing_demo.html](https://kennyfully881230.github.io/wasm_fun/wasm_canvas_drawing_demo/wasm_canvas_drawing_demo.html)
+
+---
+
 ## 🇬🇧 English
 
 Welcome! This repository contains a collection of **small, open-source demo projects** utilizing **WebAssembly (Wasm)**.
