@@ -15,6 +15,7 @@
   ;; Memory & Globals
   ;; ---------------------------------------------------------------
   (memory (export "memory") 1)            ;; 1 page = 64KB
+  (global $rare i32 (i32.const 0))
   (global $frame (mut i32) (i32.const 0)) ;; animation frame counter
   (global $white  i32 (i32.const 0xFFFFFFFF)) ;; RGBA: white
   (global $black  i32 (i32.const 0xFF000000)) ;; RGBA: black
