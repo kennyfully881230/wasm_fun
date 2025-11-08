@@ -1,0 +1,26 @@
+Wasm Fun Dev Tools Notes
+
+Was originally created by me (Kenny Fully) to encode and decode files with
+base64. Now since I'm working with Wasm (WebAssembly) modules, This file will
+be modified in the future with extra features and ease of use. If you have any
+requests or suggestions please contact me in the issues section or at my email
+kennyfully19881230@gmail.com with the title "Wasm Tools". Thank you very much
+and may God bless you.
+
+-------------------------------------------------------------------------------
+
+Features
+
+-------------------------------------------------------------------------------
+
+- Base64 Encoder
+Turn a file to a base64 dataURL string.
+
+- Base64 Decoder
+Turn a dataURL string to a file.
+
+- Wasm Module Maker
+Turn a .wasm file to a WebAssemblyModule with UInt8Array data.
+
+- Image to Wasm Image Data
+Turn an Image to wasm data
