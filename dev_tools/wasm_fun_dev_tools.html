@@ -118,10 +118,10 @@
         const img = new Image()
 
         img.onload = () => {
-          // Converts the image RGBA to a HEX ABGR format for Wasm Wat
-          const rgbaToHexAbgr = (r, g, b, a) => {
+          // Converts the image RGBA to a HEX format for Wasm Wat
+          const rgbaToHex = (r, g, b, a) => {
             const toHex = (c) => c.toString(16).padStart(2, '0')
-            return `/${toHex(a)}/${toHex(b)}/${toHex(g)}/${toHex(r)}`
+            return `\\${toHex(r)}\\${toHex(g)}\\${toHex(b)}\\${toHex(a)}`
           }
 
           canvas.width = img.width
@@ -139,7 +139,7 @@
             const g = rgbaData[i + 1]
             const b = rgbaData[i + 2]
             const a = rgbaData[i + 3]
-            const hex = rgbaToHexAbgr(r, g, b, a)
+            const hex = rgbaToHex(r, g, b, a)
             hexDataString = hexDataString + hex
           }
 
