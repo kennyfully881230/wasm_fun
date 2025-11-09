@@ -20,8 +20,9 @@
       <select id="mode-selector" name="mode-selector" style="background-color:#404040;color:#FFFFFF">
         <option value="b64Encoder">Base64 Encoder</option>
         <option value="b64Decoder">Base64 Decoder</option>
-        <option value="wasmModuleMaker">Wasm Module Maker</option>
-        <option value="imageDataMaker">Wasm Image Data Maker</option>
+        <option value="wasmModule">Wasm Module (Embedded)</option>
+        <option value="imageData">Wasm Image Data</option>
+        <option value="imageDataDc">Wasm Image Data (Dictionay Compression)</option>
       </select>
       <div style="background-color:#404040;color:#FFFFFF">
         <p class="instructions">Pick a file.</p>
@@ -47,7 +48,7 @@
       </button>
     </div>
   </main>
-  <footer class="footer" style="color:white;padding:4pt;text-align:right;">V:4.0.0</footer>
+  <footer class="footer" style="color:white;padding:4pt;text-align:right;">V:4.1.0</footer>
   <canvas id="offscreen-canvas" style="display:none;"></canvas>
 
   <script>
@@ -97,16 +98,16 @@
     const reader = new FileReader()
     let resultString = null
 
-    if (modeSelector.value === 'b64Encoder' || modeSelector.value === 'imageDataMaker') reader.readAsDataURL(file)
+    if (modeSelector.value === 'b64Encoder' || modeSelector.value === 'imageData' || modeSelector.value === 'imageDataDc') reader.readAsDataURL(file)
     if (modeSelector.value === 'b64Decoder') reader.readAsText(file)
-    if (modeSelector.value === 'wasmModuleMaker') reader.readAsArrayBuffer(file)
+    if (modeSelector.value === 'wasmModule') reader.readAsArrayBuffer(file)
 
     reader.onload = () => {
       currentFileName = file.name.split('.')[0]
       resultLabel.innerText = `Result: ${file.name}`
 
-      // Wasm Module Maker
-      if (modeSelector.value === 'wasmModuleMaker') {
+      // Wasm Module
+      if (modeSelector.value === 'wasmModule') {
         const uint8Array = new Uint8Array(reader.result)
         const string = 'const webAssemblyModule = new WebAssembly.Module(new Uint8Array([' + Array.from(uint8Array)
           .map(byte => '0x' + byte.toString(16).padStart(2, '0'))
@@ -114,7 +115,7 @@
 
         resultString = string
         result.value = resultString
-      } else if (modeSelector.value === 'imageDataMaker') {
+      } else if (modeSelector.value === 'imageData') {
         const img = new Image()
 
         img.onload = () => {
@@ -148,6 +149,52 @@
           ;; reserved for game development
           ;; This image data size is ${rgbaData.length}
           "${hexDataString}"
+          )`
+          result.value = resultString
+        }
+
+        img.src = reader.result
+      } else if (modeSelector.value === 'imageDataDc') {
+        const img = new Image()
+        const dictionaryArray = ['0x00000000']
+        let imageDataString = ''
+
+        const toHex = (c) => c.toString(16).padStart(2, '0')
+
+        img.onload = () => {
+          // Converts the image RGBA to a HEX format for Wasm Wat
+          const rgbaToHex = (r, g, b, a) => {
+            const result = `0x${toHex(r)}${toHex(g)}${toHex(b)}${toHex(a)}`
+            if (dictionaryArray.includes(result)) {
+              imageDataString = `${imageDataString}\\${toHex(dictionaryArray.indexOf(result))}`
+            } else {
+              dictionaryArray.push(result)
+              imageDataString = `${imageDataString}\\${toHex(dictionaryArray.length - 1)}`
+            }
+          }
+
+          canvas.width = img.width
+          canvas.height = img.height
+          ctx.drawImage(img, 0, 0)
+
+          const rgbaData =  ctx.getImageData(0, 0, canvas.width, canvas.height).data
+
+          // Loop through the data array, stepping 4 elements at a time (R, G, B, A)
+          for (let i = 0; i < rgbaData.length; i += 4) {
+            const r = rgbaData[i]
+            const g = rgbaData[i + 1]
+            const b = rgbaData[i + 2]
+            const a = rgbaData[i + 3]
+            rgbaToHex(r, g, b, a)
+          }
+
+          resultString = `${dictionaryArray.map((color, index)=> `(global $index${toHex(index)} i32 (i32.const ${color}))\n`).join('')}
+          
+          (data (i32.const 102400)
+          ;; The 102400 offset is assuming you have a 160x160 portion of memory
+          ;; reserved for game development
+          ;; This image map data size is ${imageDataString.split('\\').length - 1}
+          "${imageDataString}"
           )`
           result.value = resultString
         }
