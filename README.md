@@ -15,6 +15,8 @@ Daikonsuke Animation - [https://kennyfully881230.github.io/wasm_fun/daikonsuke_a
 
 Wasm Canvas Drawing Demo - [https://kennyfully881230.github.io/wasm_fun/wasm_canvas_drawing_demo/wasm_canvas_drawing_demo.html](https://kennyfully881230.github.io/wasm_fun/wasm_canvas_drawing_demo/wasm_canvas_drawing_demo.html)
 
+Wasm Maze (WIP) -  [https://kennyfully881230.github.io/wasm_fun/wasm_maze/wasm_maze.html](https://kennyfully881230.github.io/wasm_fun/wasm_maze/wasm_maze.html)
+
 Wasm Logo 32x32 - [https://kennyfully881230.github.io/wasm_fun/wasm_logo_32x32/wasm_logo_32x32.html](https://kennyfully881230.github.io/wasm_fun/wasm_logo_32x32/wasm_logo_32x32.html)
 
 ---
