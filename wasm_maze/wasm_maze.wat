@@ -3,16 +3,28 @@
   (memory (export "memory") 3)
   (global $camera_x i32 (i32.const 72))
   (global $camera_y i32 (i32.const 72))
+  (global $key_blue i32 (i32.const 0))
+  (global $key_green i32 (i32.const 0))
+  (global $key_red i32 (i32.const 0))
   (global $player_mode (mut i32) (i32.const 0))
   (global $player_size (mut i32) (i32.const 16))
   (global $player_x (mut i32) (i32.const 0))
   (global $player_y (mut i32) (i32.const 16))
   (global $pointer_x (export "pointer_x") (mut i32) (i32.const 255))
   (global $pointer_y (export "pointer_y") (mut i32) (i32.const 255))
-  (global $scene_index (mut i32) (i32.const 0)) ;; current scene 0 = Title Scene 1 = Game Scene
+  (global $scene_index (mut i32) (i32.const 0)) ;; current scene 0 = Title; 1 = Maze Select; 2 = Game
   (global $splash_screen_countdown (mut i32) (i32.const 0)) ;; The countdown before the Game Scene
   (global $timer_30 (mut i32) (i32.const 0)) ;; 30 frame counter
   (global $timer_60 (mut i32) (i32.const 0)) ;; 60 frame counter
+
+  ;; TODO: Replace these colors with better colors for the game
+  ;; color formar ABGR
+  (global $clear i32 (i32.const 0x00000000))
+  (global $white i32 (i32.const 0xFF000000))
+  (global $red i32 (i32.const 0xFF0000FF))
+  (global $green i32 (i32.const 0xFF00FF00))
+  (global $blue i32 (i32.const 0xFFFF0000))
+  (global $black i32 (i32.const 0xFFFFFFFF))
 
   (;
    MEMORY MAP      | BYTES  | IMAGE SPECS   | DESCRIPTION
@@ -57,11 +69,33 @@
   ;; player_right_16x16x2 = 2048 bytes
   (data (i32.const 114688) "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\ff\ff\ff\ff\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\ff\ff\ff\ff\ff\ff\ff\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\ff\ff\ff\ff\ff\ff\ff\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\65\4f\f0\ff\ff\ff\ff\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\65\4f\f0\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\ff\65\4f\f0\ff\ff\ff\ff\ff\b0\12\0a\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\ff\ff\ff\ff\ff\ff\ff\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\ff\ff\ff\ff\ff\ff\ff\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\ff\ff\ff\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\65\4f\f0\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\ff\ff\ff\ff\b0\12\0a\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\ff\65\4f\f0\ff\65\4f\f0\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00")
 
-  ;; boulder_positions tdx tdy = 60 bytes
-  (data (i32.const 132096) "\10\00\70\00\80\00\90\00\70\10\40\20\70\20\00\30\10\30\40\30\60\30\70\30\80\30\40\40\50\50\60\50\70\50\00\60\10\60\20\60\50\60\10\70\40\70\50\70\70\70\40\80\70\80\90\80\40\90\70\90")
+  ;; key_and_lock_16x16x2_dc = 512 bytes
+  (data (i32.const 116736) "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\01\01\02\01\02\02\01\02\01\01\00\00\00\00\00\00\01\01\02\02\01\01\02\02\01\01\00\00\00\00\00\00\01\01\01\01\02\02\01\01\01\01\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\01\02\02\02\02\02\02\01\00\00\00\00\00\00\00\01\02\02\01\01\01\01\02\02\01\00\00\00\00\00\00\01\02\01\00\00\00\00\01\02\01\00\00\00\00\00\00\01\02\01\00\00\00\00\01\02\01\00\00\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\01\02\02\02\02\02\02\02\02\02\02\02\02\01\00\00\01\01\01\01\02\02\01\01\02\02\01\01\01\01\00\00\01\02\02\02\02\01\01\01\01\02\02\02\02\01\00\00\01\01\01\02\02\01\01\01\01\02\02\01\01\01\00\00\01\02\02\02\02\01\01\01\01\02\02\02\02\01\00\00\01\01\02\02\02\02\01\01\02\02\02\02\01\01\00\00\01\02\02\02\02\02\02\02\02\02\02\02\02\01\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00")
 
-  ;; wasm_position tdx tdy
-  (data (i32.const 132156) "\80\10")
+  ;; lock_icon_8x8_dc2 = 64 bytes
+  (data (i32.const 117248) "\00\00\00\00\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\01\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\01\00\00\00\00\00\00\01\01\01\01\00\00\00\00\01\02\02\01\00\00\00\00\01\01\01\01\00\00")
+
+  ;; maze_select_button_32x32 = 4096 bytes
+  (data (i32.const 117312) "\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff")
+
+  ;; maze_select_button_number_label_16x16x9 = 9216 bytes
+  (data (i32.const 121408) "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\ff\3b\3b\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00")
+
+  ;; maze_select_button_trophy_icon_8x8_dc1 = 256 bytes
+  (data (i32.const 130624) "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\ff\00\00\00\ff\00\00\00\ff\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00")
+
+  ;; you_win_overlay_80x32_dc2 = 2560 bytes
+  (data (i32.const 130880) "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\00\00\00\00\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\00\00\00\01\01\01\01\01\00\00\00\00\00\01\01\01\01\01\00\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\00\00\00\01\01\01\01\01\00\00\00\00\00\01\01\01\01\01\00\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\01\01\01\01\01\00\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\00\01\01\01\01\01\01\01\00\00\00\00\01\01\01\01\01\00\00\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\00\01\01\01\01\01\01\01\00\00\00\01\01\01\01\01\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\00\01\01\01\01\01\01\01\01\00\00\01\01\01\01\01\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\00\00\00\00\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\01\01\01\01\01\01\01\01\01\00\00\01\01\01\01\01\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\00\00\00\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\00\00\01\01\01\01\00\01\01\01\01\00\00\01\01\01\01\01\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\00\00\00\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\01\01\01\01\00\01\01\01\01\00\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\00\00\00\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\01\01\00\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\00\01\01\01\01\00\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\01\00\00\00\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\00\01\01\01\01\00\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\01\00\00\00\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\01\01\01\01\00\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\00\00\00\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\01\01\01\01\01\00\00\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\00\01\01\01\01\01\01\01\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\01\01\01\01\01\00\00\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\01\01\01\01\01\01\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\01\01\01\01\01\00\00\00\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\00\00\00\00\00\00\00\01\01\01\01\01\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\01\01\01\01\01\00\00\00\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\00\00\00\00\00\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\01\01\01\00\00\00\00\00\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00")
+
+  ;; boulder_positions tdx tdy = 60 bytes
+  (data (i32.const 133440) "\10\00\70\00\80\00\90\00\70\10\40\20\70\20\00\30\10\30\40\30\60\30\70\30\80\30\40\40\50\50\60\50\70\50\00\60\10\60\20\60\50\60\10\70\40\70\50\70\70\70\40\80\70\80\90\80\40\90\70\90")
+
+  ;; wasm_position tdx tdy = 2 bytes
+  (data (i32.const 133500) "\80\10")
+
+  ;; maze_cleared_data_trophy = 9 bytes
+  ;; 0 = false 1 = true
+  (data (i32.const 133502) "\00\00\00\00\00\00\00\00\00")
 
   (func $i32_abs (param $value i32) (result i32)
     local.get $value
@@ -142,7 +176,7 @@
 
   (func $render_boulders (local $i i32)
     loop $loop
-      i32.const 132096
+      i32.const 133440
       local.get $i
       i32.const 2
       i32.mul
@@ -153,7 +187,7 @@
       global.get $player_x
       i32.sub
 
-      i32.const 132097      
+      i32.const 133441      
       local.get $i
       i32.const 2
       i32.mul
@@ -185,14 +219,14 @@
       global.get $player_y
       global.get $player_size
 
-      i32.const 132096
+      i32.const 133440
       local.get $i
       i32.const 2
       i32.mul
       i32.add
       i32.load8_u
 
-      i32.const 132097      
+      i32.const 133441     
       local.get $i
       i32.const 2
       i32.mul
@@ -257,163 +291,162 @@
   )
 
   (func $render_sprite
-  (param $x i32)      ;; x coord
-  (param $y i32)      ;; y coord
-  (param $size i32)   ;; tile size of the sprite
-  (param $source i32) ;; base source address
-  (local $offset_source_address i32)
-  (local $current_dest_address i32)
-  (local $i i32)      ;; iteration i (source row)
-  (local $j i32)      ;; iteration j (source column)
-  (local $bpp i32)    ;; bytes per pixel (usually 4)
-  (local $color i32)
-  (local $alpha i32)
-  (local $canvas_width i32)
-  (local $canvas_height i32)
-  (local $dest_x i32)  ;; destination x coordinate
-  (local $dest_y i32)  ;; destination y coordinate
-  (local $pixel_index i32)
+    (param $x i32)      ;; x coord
+    (param $y i32)      ;; y coord
+    (param $size i32)   ;; tile size of the sprite
+    (param $source i32) ;; base source address
+    (local $offset_source_address i32)
+    (local $current_dest_address i32)
+    (local $i i32)      ;; iteration i (source row)
+    (local $j i32)      ;; iteration j (source column)
+    (local $bpp i32)    ;; bytes per pixel (usually 4)
+    (local $color i32)
+    (local $alpha i32)
+    (local $canvas_width i32)
+    (local $canvas_height i32)
+    (local $dest_x i32)  ;; destination x coordinate
+    (local $dest_y i32)  ;; destination y coordinate
+    (local $pixel_index i32)
 
-  ;; Constants
-  i32.const 4
-  local.set $bpp
+    ;; Constants
+    i32.const 4
+    local.set $bpp
   
-  i32.const 160  ;; canvas width
-  local.set $canvas_width
+    i32.const 160  ;; canvas width
+    local.set $canvas_width
   
-  i32.const 160  ;; canvas height
-  local.set $canvas_height
+    i32.const 160  ;; canvas height
+    local.set $canvas_height
 
-  ;; Calculate total canvas pixels for bounds checking
-  local.get $canvas_width
-  local.get $canvas_height
-  i32.mul
-  local.get $bpp
-  i32.mul
-  local.set $pixel_index
+    ;; Calculate total canvas pixels for bounds checking
+    local.get $canvas_width
+    local.get $canvas_height
+    i32.mul
+    local.get $bpp
+    i32.mul
+    local.set $pixel_index
 
-  ;; Initialize source_y (i) to 0
-  i32.const 0
-  local.set $i
-
-  loop $row_loop
-    ;; Calculate destination y coordinate
-    local.get $y
-    local.get $i
-    i32.add
-    local.set $dest_y
-
-    ;; Skip this row if it's outside canvas bounds (top or bottom clipping)
-    block $skip_row
-      local.get $dest_y
-      i32.const 0
-      i32.lt_s
-      br_if $skip_row
-    
-      local.get $dest_y
-      local.get $canvas_height
-      i32.ge_s
-      br_if $skip_row
-
-      ;; Initialize source_x (j) to 0
-      i32.const 0
-      local.set $j
-
-      loop $column_loop
-        ;; Calculate destination x coordinate
-        local.get $x
-        local.get $j
-        i32.add
-        local.set $dest_x
-
-        ;; Skip this pixel if it's outside canvas bounds (left or right clipping)
-        block $skip_pixel
-          local.get $dest_x
-          i32.const 0
-          i32.lt_s
-          br_if $skip_pixel
-          
-          local.get $dest_x
-          local.get $canvas_width
-          i32.ge_s
-          br_if $skip_pixel
-
-          ;; Calculate destination byte offset: (dest_y * canvas_width + dest_x) * bpp
-          local.get $dest_y
-          local.get $canvas_width
-          i32.mul
-          local.get $dest_x
-          i32.add
-          local.get $bpp
-          i32.mul
-          local.set $current_dest_address
-
-          ;; Check if destination address is within valid memory bounds
-          local.get $current_dest_address
-          i32.const 0
-          i32.lt_s
-          br_if $skip_pixel  ;; Negative address - skip
-
-          local.get $current_dest_address
-          local.get $pixel_index
-          i32.ge_s
-          br_if $skip_pixel  ;; Address beyond canvas memory - skip
-
-          ;; Calculate source address: source + (i * size + j) * bpp
-          local.get $source
-          local.get $i
-          local.get $size
-          i32.mul
-          local.get $j
-          i32.add
-          local.get $bpp
-          i32.mul
-          i32.add
-          i32.load
-          local.set $color
-
-          ;; Extract alpha channel (assuming ARGB format)
-          local.get $color
-          i32.const 0xFF000000
-          i32.and
-          local.set $alpha
-
-          ;; Only store if pixel is not completely transparent
-          local.get $alpha
-          i32.const 0
-          i32.ne
-          if
-            local.get $current_dest_address
-            local.get $color
-            i32.store
-          end
-        end  ;; end skip_pixel block
-
-        ;; increment j (source_x)
-        local.get $j
-        i32.const 1
-        i32.add
-        local.set $j
-
-        local.get $j
-        local.get $size
-        i32.lt_s
-        br_if $column_loop
-      end  ;; end column_loop
-    end  ;; end skip_row block
-
-    ;; increment i (source_y)
-    local.get $i
-    i32.const 1
-    i32.add
+    ;; Initialize source_y (i) to 0
+    i32.const 0
     local.set $i
 
-    local.get $i
-    local.get $size
-    i32.lt_s
-    br_if $row_loop
-  end  ;; end row_loop
-)
+    loop $row_loop
+      ;; Calculate destination y coordinate
+      local.get $y
+      local.get $i
+      i32.add
+      local.set $dest_y
+
+      ;; Skip this row if it's outside canvas bounds (top or bottom clipping)
+      block $skip_row
+        local.get $dest_y
+        i32.const 0
+        i32.lt_s
+        br_if $skip_row
+    
+        local.get $dest_y
+        local.get $canvas_height
+        i32.ge_s
+        br_if $skip_row
+
+        ;; Initialize source_x (j) to 0
+        i32.const 0
+        local.set $j
+
+        loop $column_loop
+          ;; Calculate destination x coordinate
+          local.get $x
+          local.get $j
+          i32.add
+          local.set $dest_x
+
+          ;; Skip this pixel if it's outside canvas bounds (left or right clipping)
+          block $skip_pixel
+            local.get $dest_x
+            i32.const 0
+            i32.lt_s
+            br_if $skip_pixel
+          
+            local.get $dest_x
+            local.get $canvas_width
+            i32.ge_s
+            br_if $skip_pixel
+
+            ;; Calculate destination byte offset: (dest_y * canvas_width + dest_x) * bpp
+            local.get $dest_y
+            local.get $canvas_width
+            i32.mul
+            local.get $dest_x
+            i32.add
+            local.get $bpp
+            i32.mul
+            local.set $current_dest_address
+
+            ;; Check if destination address is within valid memory bounds
+            local.get $current_dest_address
+            i32.const 0
+            i32.lt_s
+            br_if $skip_pixel  ;; Negative address - skip
+
+            local.get $current_dest_address
+            local.get $pixel_index
+            i32.ge_s
+            br_if $skip_pixel  ;; Address beyond canvas memory - skip
+
+            ;; Calculate source address: source + (i * size + j) * bpp
+            local.get $source
+            local.get $i
+            local.get $size
+            i32.mul
+            local.get $j
+            i32.add
+            local.get $bpp
+            i32.mul
+            i32.add
+            i32.load
+            local.set $color
+
+            ;; Extract alpha channel (assuming ARGB format)
+            local.get $color
+            i32.const 0xFF000000
+            i32.and
+            local.set $alpha
+
+            ;; Only store if pixel is not completely transparent
+            local.get $alpha
+            i32.const 0
+            i32.ne
+              if
+                local.get $current_dest_address
+                local.get $color
+                i32.store
+              end
+            end  ;; end skip_pixel block
+
+            ;; increment j (source_x)
+            local.get $j
+            i32.const 1
+            i32.add
+            local.set $j
+
+            local.get $j
+            local.get $size
+            i32.lt_s
+            br_if $column_loop
+          end  ;; end column_loop
+        end  ;; end skip_row block
+
+        ;; increment i (source_y)
+        local.get $i
+        i32.const 1
+        i32.add
+        local.set $i
+        local.get $i
+        local.get $size
+        i32.lt_s
+        br_if $row_loop
+      end  ;; end row_loop
+  )
 
   ;; Title Scene
   (func $title_scene (local $i i32)
@@ -427,24 +460,181 @@
 	  i32.add
 	  global.set $splash_screen_countdown
  	else
+	  i32.const 0
+	  global.set $splash_screen_countdown
 	  i32.const 1
 	  global.set $scene_index
 	end
+  )
+
+  ;; Maze Select Screen
+  (func $maze_select_scene (local $i i32)
+    call $clear_screen
+
+    ;; Render maze select buttons
+    loop $loop
+      i32.const 16
+      local.get $i
+      i32.const 3
+      i32.rem_s
+      i32.const 48
+      i32.mul
+      i32.add
+
+      i32.const 16
+      local.get $i
+      f32.convert_i32_s
+      i32.const 3
+      f32.convert_i32_s
+      f32.div
+      f32.floor
+      i32.trunc_f32_s
+      i32.const 48
+      i32.mul
+      i32.add
+
+      i32.const 32
+      i32.const 117312
+      call $render_sprite
+
+      ;; number
+      i32.const 24
+      local.get $i
+      i32.const 3
+      i32.rem_s
+      i32.const 48
+      i32.mul
+      i32.add
+      i32.const 24
+      local.get $i
+      f32.convert_i32_s
+      i32.const 3
+      f32.convert_i32_s
+      f32.div
+      f32.floor
+      i32.trunc_f32_s
+      i32.const 48
+      i32.mul
+      i32.add
+      i32.const 16
+      i32.const 121408
+      local.get $i
+      i32.const 1024
+      i32.mul
+      i32.add
+      call $render_sprite
+
+      ;; Trophy
+      ;; it only renders if the maze was cleared
+      i32.const 133502
+      local.get $i
+      i32.add
+      i32.load8_u
+      i32.const 1
+      i32.eq
+
+      if
+        i32.const 39
+        local.get $i
+        i32.const 3
+        i32.rem_s
+        i32.const 48
+        i32.mul
+        i32.add
+        i32.const 39
+        local.get $i
+        f32.convert_i32_s
+        i32.const 3
+        f32.convert_i32_s
+        f32.div
+        f32.floor
+        i32.trunc_f32_s
+        i32.const 48
+        i32.mul
+        i32.add
+        i32.const 8
+        i32.const 130624
+        call $render_sprite
+      end
+
+      ;; Check col
+      ;; Pointer
+      global.get $pointer_x
+      global.get $pointer_y
+      i32.const 1
+
+      ;; Button x
+      i32.const 16
+      local.get $i
+      i32.const 3
+      i32.rem_s
+      i32.const 48
+      i32.mul
+      i32.add
+      ;; Button y
+      i32.const 16
+      local.get $i
+      f32.convert_i32_s
+      i32.const 3
+      f32.convert_i32_s
+      f32.div
+      f32.floor
+      i32.trunc_f32_s
+      i32.const 48
+      i32.mul
+      i32.add
+      ;; buttonsize
+      i32.const 32
+      call $square_collision
+      i32.const 1
+      i32.eq
+      if
+        i32.const 2 ;; Go to game scene
+        global.set $scene_index
+      end
+
+      ;; increment by 1
+      local.get $i
+      i32.const 1
+      i32.add
+      local.set $i
+      local.get $i
+      i32.const 9 ;; because 9 buttons are needed
+      i32.lt_s
+      br_if $loop
+    end
+
+    ;; todo erase this
+	;; global.get $splash_screen_countdown
+	;; i32.const 179
+	;; i32.lt_s
+	;; if
+	;;   global.get $splash_screen_countdown
+	;;   i32.const 1
+	;;   i32.add
+	;;   global.set $splash_screen_countdown
+    ;; else
+	;;   i32.const 0
+	;;   global.set $splash_screen_countdown
+	;;   i32.const 2
+	;;   global.set $scene_index
+	;; end
   )
 
   ;; Game Scene
   (func $game_scene
     call $clear_screen
     call $render_boulders
+
     ;; Render the wasm sprite
-    i32.const 132156
+    i32.const 133500
     i32.load8_u
     global.get $camera_x
     i32.add
     global.get $player_x
     i32.sub
 
-    i32.const 132157
+    i32.const 133501
     i32.load8_u
     global.get $camera_y
     i32.add
@@ -558,6 +748,12 @@
 	end
     global.get $scene_index
 	i32.const 1
+	i32.eq
+	if
+      call $maze_select_scene
+	end
+    global.get $scene_index
+	i32.const 2
 	i32.eq
 	if
       call $game_scene
