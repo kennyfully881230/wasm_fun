@@ -7,6 +7,7 @@
   (global $key_green i32 (i32.const 0))
   (global $key_red i32 (i32.const 0))
   (global $player_mode (mut i32) (i32.const 0))
+  (global $player_hitbox_size i32 (i32.const 10))
   (global $player_size (mut i32) (i32.const 16))
   (global $player_x (mut i32) (i32.const 0))
   (global $player_y (mut i32) (i32.const 16))
@@ -216,8 +217,12 @@
   (func $boulder_collision_checks (local $i i32)
     loop $loop
       global.get $player_x
+      i32.const 3
+      i32.add
       global.get $player_y
-      global.get $player_size
+      i32.const 6
+      i32.add
+      global.get $player_hitbox_size ;; 10
 
       i32.const 133440
       local.get $i
