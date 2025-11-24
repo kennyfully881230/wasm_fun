@@ -1,12 +1,13 @@
 ;; Kenny Fully made this example. May GOD bless you.
 (module
   (memory (export "memory") 3) ;; 196608 bytes
-  (global $camera_x i32 (i32.const 72))
-  (global $camera_y i32 (i32.const 72))
-  (global $key_blue i32 (i32.const 0))
+  (global $camera_x  i32 (i32.const 72))
+  (global $camera_y  i32 (i32.const 72))
+  (global $key_blue  i32 (i32.const 0))
   (global $key_green i32 (i32.const 0))
-  (global $key_red i32 (i32.const 0))
+  (global $key_red   i32 (i32.const 0))
   (global $maze_index (mut i32) (i32.const 0))
+  (global $maze_selected (mut i32) (i32.const 0))
   (global $player_hitbox_size i32 (i32.const 10))
   (global $player_mode (mut i32) (i32.const 0))
   (global $player_size (mut i32) (i32.const 16))
@@ -404,6 +405,14 @@
       return
     end
     local.get $value
+  )
+
+  ;; Clear the entire screen
+  (func $gray_screen
+   i32.const 0
+   i32.const 127
+   i32.const 102400
+   memory.fill
   )
 
   ;; Clear the entire screen
@@ -820,160 +829,254 @@
 	end
   )
 
-  ;; Maze Select Screen
+  ;; Maze Select Scene
   (func $maze_select_scene (local $i i32)
-    call $clear_screen
-
-    ;; Render maze select buttons
-    loop $loop
-      i32.const 16
-      local.get $i
-      i32.const 3
-      i32.rem_s
-      i32.const 48
-      i32.mul
-      i32.add
-
-      i32.const 16
-      local.get $i
-      f32.convert_i32_s
-      i32.const 3
-      f32.convert_i32_s
-      f32.div
-      f32.floor
-      i32.trunc_f32_s
-      i32.const 48
-      i32.mul
-      i32.add
-
-      i32.const 32
-      i32.const 117312
-      call $render_sprite
-
-      ;; number
-      i32.const 24
-      local.get $i
-      i32.const 3
-      i32.rem_s
-      i32.const 48
-      i32.mul
-      i32.add
-      i32.const 24
-      local.get $i
-      f32.convert_i32_s
-      i32.const 3
-      f32.convert_i32_s
-      f32.div
-      f32.floor
-      i32.trunc_f32_s
-      i32.const 48
-      i32.mul
-      i32.add
-      i32.const 16
-      i32.const 121408
-      local.get $i
-      i32.const 1024
-      i32.mul
-      i32.add
-      call $render_sprite
-
-      ;; Trophy
-      ;; it only renders if the maze was cleared
-      i32.const 133502
-      local.get $i
-      i32.add
-      i32.load8_u
-      i32.const 1
-      i32.eq
-
+    global.get $maze_selected
+    i32.const 0
+    i32.eq
       if
-        i32.const 39
-        local.get $i
-        i32.const 3
-        i32.rem_s
-        i32.const 48
-        i32.mul
-        i32.add
-        i32.const 39
-        local.get $i
-        f32.convert_i32_s
-        i32.const 3
-        f32.convert_i32_s
-        f32.div
-        f32.floor
-        i32.trunc_f32_s
-        i32.const 48
-        i32.mul
-        i32.add
-        i32.const 8
-        i32.const 130624
-        call $render_sprite
+        call $clear_screen
+        ;; Render maze select buttons
+        loop $loop
+          i32.const 16
+          local.get $i
+          i32.const 3
+          i32.rem_s
+          i32.const 48
+          i32.mul
+          i32.add
+
+          i32.const 16
+          local.get $i
+          f32.convert_i32_s
+          i32.const 3
+          f32.convert_i32_s
+          f32.div
+          f32.floor
+          i32.trunc_f32_s
+          i32.const 48
+          i32.mul
+          i32.add
+
+          i32.const 32
+          i32.const 117312
+          call $render_sprite
+
+          ;; number
+          i32.const 24
+          local.get $i
+          i32.const 3
+          i32.rem_s
+          i32.const 48
+          i32.mul
+          i32.add
+          i32.const 24
+          local.get $i
+          f32.convert_i32_s
+          i32.const 3
+          f32.convert_i32_s
+          f32.div
+          f32.floor
+          i32.trunc_f32_s
+          i32.const 48
+          i32.mul
+          i32.add
+          i32.const 16
+          i32.const 121408
+          local.get $i
+          i32.const 1024
+          i32.mul
+          i32.add
+          call $render_sprite
+
+          ;; Trophy
+          ;; it only renders if the maze was cleared
+          i32.const 133502
+          local.get $i
+          i32.add
+          i32.load8_u
+          i32.const 1
+          i32.eq
+
+          if
+            i32.const 39
+            local.get $i
+            i32.const 3
+            i32.rem_s
+            i32.const 48
+            i32.mul
+            i32.add
+            i32.const 39
+            local.get $i
+            f32.convert_i32_s
+            i32.const 3
+            f32.convert_i32_s
+            f32.div
+            f32.floor
+            i32.trunc_f32_s
+            i32.const 48
+            i32.mul
+            i32.add
+            i32.const 8
+            i32.const 130624
+            call $render_sprite
+          end
+
+          ;; Check col
+          ;; Pointer
+          global.get $pointer_x
+          global.get $pointer_y
+          i32.const 1
+
+          ;; Button x
+          i32.const 16
+          local.get $i
+          i32.const 3
+          i32.rem_s
+          i32.const 48
+          i32.mul
+          i32.add
+          ;; Button y
+          i32.const 16
+          local.get $i
+          f32.convert_i32_s
+          i32.const 3
+          f32.convert_i32_s
+          f32.div
+          f32.floor
+          i32.trunc_f32_s
+          i32.const 48
+          i32.mul
+          i32.add
+          ;; buttonsize
+          i32.const 32
+          call $square_collision
+          i32.const 1
+          i32.eq
+          if
+            local.get $i
+            global.set $maze_index ;; set the maze index
+            i32.const 1
+            global.set $maze_selected
+          end
+
+          ;; increment by 1
+          local.get $i
+          i32.const 1
+          i32.add
+          local.set $i
+          local.get $i
+          i32.const 9 ;; because 9 buttons are needed
+          i32.lt_s
+          br_if $loop
+        end
+      else
+        ;; for when maze selected
+        global.get $splash_screen_countdown
+        i32.const 179
+	    i32.lt_s
+        if
+          call $gray_screen
+
+          i32.const 16
+          global.get $maze_index
+          i32.const 3
+          i32.rem_s
+          i32.const 48
+          i32.mul
+          i32.add
+
+          i32.const 16
+          global.get $maze_index
+          f32.convert_i32_s
+          i32.const 3
+          f32.convert_i32_s
+          f32.div
+          f32.floor
+          i32.trunc_f32_s
+          i32.const 48
+          i32.mul
+          i32.add
+
+          i32.const 32
+          i32.const 117312
+          call $render_sprite
+
+          ;; number
+          i32.const 24
+          global.get $maze_index
+          i32.const 3
+          i32.rem_s
+          i32.const 48
+          i32.mul
+          i32.add
+          i32.const 24
+          global.get $maze_index
+          f32.convert_i32_s
+          i32.const 3
+          f32.convert_i32_s
+          f32.div
+          f32.floor
+          i32.trunc_f32_s
+          i32.const 48
+          i32.mul
+          i32.add
+          i32.const 16
+          i32.const 121408
+          global.get $maze_index
+          i32.const 1024
+          i32.mul
+          i32.add
+          call $render_sprite
+
+          ;; Trophy
+          ;; it only renders if the maze was cleared
+          i32.const 133502
+          global.get $maze_index
+          i32.add
+          i32.load8_u
+          i32.const 1
+          i32.eq
+
+          if
+            i32.const 39
+            global.get $maze_index
+            i32.const 3
+            i32.rem_s
+            i32.const 48
+            i32.mul
+            i32.add
+            i32.const 39
+            global.get $maze_index
+            f32.convert_i32_s
+            i32.const 3
+            f32.convert_i32_s
+            f32.div
+            f32.floor
+            i32.trunc_f32_s
+            i32.const 48
+            i32.mul
+            i32.add
+            i32.const 8
+            i32.const 130624
+            call $render_sprite
+          end
+          
+          global.get $splash_screen_countdown
+          i32.const 1
+          i32.add
+          global.set $splash_screen_countdown
+        else
+          i32.const 0
+          global.set $maze_selected
+          i32.const 2 ;; Go to game scene
+          global.set $scene_index
+	      i32.const 0
+	      global.set $splash_screen_countdown
+	      i32.const 2
+	      global.set $scene_index
+	     end
       end
-
-      ;; Check col
-      ;; Pointer
-      global.get $pointer_x
-      global.get $pointer_y
-      i32.const 1
-
-      ;; Button x
-      i32.const 16
-      local.get $i
-      i32.const 3
-      i32.rem_s
-      i32.const 48
-      i32.mul
-      i32.add
-      ;; Button y
-      i32.const 16
-      local.get $i
-      f32.convert_i32_s
-      i32.const 3
-      f32.convert_i32_s
-      f32.div
-      f32.floor
-      i32.trunc_f32_s
-      i32.const 48
-      i32.mul
-      i32.add
-      ;; buttonsize
-      i32.const 32
-      call $square_collision
-      i32.const 1
-      i32.eq
-      if
-        local.get $i
-        global.set $maze_index ;; set the maze index
-        i32.const 2 ;; Go to game scene
-        global.set $scene_index
-      end
-
-      ;; increment by 1
-      local.get $i
-      i32.const 1
-      i32.add
-      local.set $i
-      local.get $i
-      i32.const 9 ;; because 9 buttons are needed
-      i32.lt_s
-      br_if $loop
-    end
-
-    ;; todo erase this
-	;; global.get $splash_screen_countdown
-	;; i32.const 179
-	;; i32.lt_s
-	;; if
-	;;   global.get $splash_screen_countdown
-	;;   i32.const 1
-	;;   i32.add
-	;;   global.set $splash_screen_countdown
-    ;; else
-	;;   i32.const 0
-	;;   global.set $splash_screen_countdown
-	;;   i32.const 2
-	;;   global.set $scene_index
-	;; end
   )
 
   ;; Game Scene
