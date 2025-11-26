@@ -1,11 +1,16 @@
 ;; Kenny Fully made this example. May GOD bless you.
 (module
   (memory (export "memory") 3) ;; 196608 bytes
-  (global $camera_x  i32 (i32.const 72))
-  (global $camera_y  i32 (i32.const 72))
-  (global $key_blue  i32 (i32.const 0))
+  (global $camera_x i32 (i32.const 72))
+  (global $camera_y i32 (i32.const 72))
+  (global $countup (mut i32) (i32.const 0)) ;; The countdown before the Game Scene
+  (global $gamebox_height i32 (i32.const 160))
+  (global $gamebox_width i32 (i32.const 160))
+  (global $gamebox_area i32 (i32.const 25600)) ;; gamebox_width * gamebox_height
+  (global $key_blue i32 (i32.const 0))
   (global $key_green i32 (i32.const 0))
-  (global $key_red   i32 (i32.const 0))
+  (global $key_red i32 (i32.const 0))
+  (global $maze_cleared (mut i32) (i32.const 0))
   (global $maze_index (mut i32) (i32.const 0))
   (global $maze_selected (mut i32) (i32.const 0))
   (global $player_hitbox_size i32 (i32.const 10))
@@ -16,7 +21,6 @@
   (global $pointer_x (export "pointer_x") (mut i32) (i32.const 255))
   (global $pointer_y (export "pointer_y") (mut i32) (i32.const 255))
   (global $scene_index (mut i32) (i32.const 0)) ;; current scene 0 = Title; 1 = Maze Select; 2 = Game
-  (global $splash_screen_countdown (mut i32) (i32.const 0)) ;; The countdown before the Game Scene
   (global $timer_30 (mut i32) (i32.const 0)) ;; 30 frame counter
   (global $timer_60 (mut i32) (i32.const 0)) ;; 60 frame counter
   ;; color format ABGR
@@ -43,18 +47,18 @@
 
   ;; gray out the entire screen
   (func $gray_screen
-   i32.const 0
-   i32.const 127
-   i32.const 102400
-   memory.fill
+    i32.const 0
+    i32.const 127
+    i32.const 102400
+    memory.fill
   )
 
   ;; clear the entire screen
   (func $clear_screen
-   i32.const 0
-   i32.const 0
-   i32.const 102400
-   memory.fill
+    i32.const 0
+    i32.const 0
+    i32.const 102400
+    memory.fill
   )
   
   (func $collision_checks (local $i i32)
@@ -183,9 +187,9 @@
         i32.const 1 ;; check for true
         i32.eq
         if
-          ;; go back to the maze select screen
+          ;; set maze_cleared
           i32.const 1
-          global.set $scene_index
+          global.set $maze_cleared
           ;; add trophy to the maze button if maze level is less than 8
           global.get $maze_index
           i32.const 8
@@ -517,6 +521,108 @@
       end  ;; end row_loop
   )
 
+  ;; render a sprite based on index colors
+  (func $render_color_indexed_sprite
+    (param $dx i32)
+    (param $dy i32)
+    (param $dw i32)
+    (param $dh i32)
+    (param $color_01 i32)
+    (param $color_02 i32)
+    (param $color_03 i32)
+    (param $data_address i32)
+    (local $i i32)
+    (local $j i32)
+  
+    i32.const 0
+    local.set $i
+  
+    loop $loop_y
+      i32.const 0
+      local.set $j
+    
+      loop $loop_x
+        ;; Check bounds - y first
+        local.get $dy
+        local.get $i
+        i32.add
+        i32.const 0
+        i32.ge_s
+        if
+          local.get $dy
+          local.get $i
+          i32.add
+          global.get $gamebox_height
+          i32.lt_s
+          if
+            ;; Check x bounds
+            local.get $dx
+            local.get $j
+            i32.add
+            i32.const 0
+            i32.ge_s
+            if
+              local.get $dx
+              local.get $j
+              i32.add
+              global.get $gamebox_width
+              i32.lt_s
+              if
+                ;; Get sprite data: i * dw + j
+                local.get $i
+                local.get $dw
+                i32.mul
+                local.get $j
+                i32.add
+                local.get $data_address
+                i32.add
+                i32.load8_u
+              
+                i32.const 0
+                i32.ne
+                if
+                  ;; Calculate pixel buffer offset: (dy+i) * width + (dx+j)
+                  local.get $dy
+                  local.get $i
+                  i32.add
+                  global.get $gamebox_width
+                  i32.mul
+                  local.get $dx
+                  local.get $j
+                  i32.add
+                  i32.add
+                  i32.const 4
+                  i32.mul
+                
+                  global.get $green
+                  i32.store
+                end
+              end
+            end
+          end
+        end
+      
+        local.get $j
+        i32.const 1
+        i32.add
+        local.set $j
+        local.get $j
+        local.get $dw
+        i32.lt_s
+        br_if $loop_x
+      end
+    
+      local.get $i
+      i32.const 1
+      i32.add
+      local.set $i
+      local.get $i
+      local.get $dh
+      i32.lt_s
+      br_if $loop_y
+    end
+  )
+
   (func $render_wasm_block (param $x i32) (param $y i32)
     ;; wasm_block_x
     local.get $x
@@ -539,18 +645,18 @@
 
   ;; TITLE_SCENE
   (func $title_scene (local $i i32)
-	;; check to see if $splash_screen_countdown is 179
-	global.get $splash_screen_countdown
+	;; check to see if $countup is 179
+	global.get $countup
 	i32.const 179
 	i32.lt_s
 	if
-	  global.get $splash_screen_countdown
+	  global.get $countup
 	  i32.const 1
 	  i32.add
-	  global.set $splash_screen_countdown
+	  global.set $countup
  	else
 	  i32.const 0
-	  global.set $splash_screen_countdown
+	  global.set $countup
 	  i32.const 1
 	  global.set $scene_index
 	end
@@ -806,7 +912,7 @@
         end
       else
         ;; for when maze selected
-        global.get $splash_screen_countdown
+        global.get $countup
         i32.const 179
 	    i32.lt_s
         if
@@ -891,17 +997,17 @@
             i32.const 130624
             call $render_sprite
           end
-          global.get $splash_screen_countdown
+          global.get $countup
           i32.const 1
           i32.add
-          global.set $splash_screen_countdown
+          global.set $countup
         else
           i32.const 0
           global.set $maze_selected
-          i32.const 2 ;; Go to game scene
+          i32.const 2 ;; go to game scene
           global.set $scene_index
 	      i32.const 0
-	      global.set $splash_screen_countdown
+	      global.set $countup
 	      i32.const 2
 	      global.set $scene_index
         end
@@ -911,71 +1017,105 @@
   ;; GAME_SCENE
   (func $game_scene
     call $clear_screen
-    call $render_map
-    call $render_player
-    ;; update player pos
-    global.get $pointer_x
-    i32.const 255
-    i32.ne
+    ;; check to see if maze cleared
+    global.get $maze_cleared
+    i32.const 1
+    i32.eq
     if
-      global.get $pointer_y
-      i32.const 80 ;; half of the screen 
-      i32.sub
-      call $i32_abs
-      global.get $pointer_x
-      i32.const 80 ;; half of the screen 
-      i32.sub
-      call $i32_abs
-      i32.gt_s
+      ;; if maze cleared just show the you win modal
+      i32.const 0       ;; dx
+      i32.const 0       ;; dy
+      i32.const 80      ;; dw
+      i32.const 32      ;; dh
+      global.get $black ;; color_01
+      global.get $clear ;; color_02
+      global.get $clear ;; color_03
+      i32.const 130880  ;; data_address
+      call $render_color_indexed_sprite
+      ;; increment $countup if less than 179
+      global.get $countup
+      i32.const 179
+      i32.lt_s
       if
-        global.get $pointer_y
-        global.get $camera_y
-        i32.lt_s
-        if
-          global.get $player_y
-          i32.const 1
-          i32.sub
-          global.set $player_y
-          ;; up
-          i32.const 1
-          global.set $player_mode
-        else
-          global.get $player_y
-          i32.const 1
-          i32.add
-          global.set $player_y
-          ;; down
-          i32.const 2
-          global.set $player_mode
-        end
+        global.get $countup
+    	i32.const 1
+    	i32.add
+    	global.set $countup
       else
-        global.get $pointer_x
-        global.get $camera_x
-        i32.lt_s
-        if
-          global.get $player_x
-          i32.const 1
-          i32.sub
-          global.set $player_x
-          ;; left
-          i32.const 3
-          global.set $player_mode
-        else
-          global.get $player_x
-          i32.const 1
-          i32.add
-          global.set $player_x
-          ;; right
-          i32.const 4
-          global.set $player_mode
-        end
+        i32.const 0
+        global.set $maze_cleared
+    	i32.const 0
+    	global.set $countup
+    	i32.const 1
+    	global.set $scene_index
       end
     else
-      i32.const 0
-      global.set $player_mode ;; idle
+      call $render_map
+      call $render_player
+      ;; update player pos
+      global.get $pointer_x
+      i32.const 255
+      i32.ne
+      if
+        global.get $pointer_y
+        i32.const 80 ;; half of the screen 
+        i32.sub
+        call $i32_abs
+        global.get $pointer_x
+        i32.const 80 ;; half of the screen 
+        i32.sub
+        call $i32_abs
+        i32.gt_s
+        if
+          global.get $pointer_y
+          global.get $camera_y
+          i32.lt_s
+          if
+            global.get $player_y
+            i32.const 1
+            i32.sub
+            global.set $player_y
+            ;; up
+            i32.const 1
+            global.set $player_mode
+          else
+            global.get $player_y
+            i32.const 1
+            i32.add
+            global.set $player_y
+            ;; down
+            i32.const 2
+            global.set $player_mode
+          end
+        else
+          global.get $pointer_x
+          global.get $camera_x
+          i32.lt_s
+          if
+            global.get $player_x
+            i32.const 1
+            i32.sub
+            global.set $player_x
+            ;; left
+            i32.const 3
+            global.set $player_mode
+          else
+            global.get $player_x
+            i32.const 1
+            i32.add
+            global.set $player_x
+            ;; right
+            i32.const 4
+            global.set $player_mode
+          end
+        end
+      else
+        i32.const 0
+        global.set $player_mode ;; idle
+      end
+      ;; check for solids etc
+      call $collision_checks
     end
-    ;; check for solids etc
-    call $collision_checks
   )
 
   ;; game loop
