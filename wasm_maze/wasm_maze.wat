@@ -25,11 +25,11 @@
   (global $timer_60 (mut i32) (i32.const 0)) ;; 60 frame counter
   ;; color format ABGR
   (global $clear i32 (i32.const 0x00000000))
-  (global $white i32 (i32.const 0xFF000000))
+  (global $white i32 (i32.const 0xFFFFFFFF))
   (global $red i32 (i32.const 0xFF0000FF))
   (global $green i32 (i32.const 0xFF00FF00))
   (global $blue i32 (i32.const 0xFFFF0000))
-  (global $black i32 (i32.const 0xFFFFFFFF))
+  (global $black i32 (i32.const 0xFF000000))
   
   ;; mathmatic abs function
   (func $i32_abs (param $value i32) (result i32)
@@ -533,6 +533,7 @@
     (param $data_address i32)
     (local $i i32)
     (local $j i32)
+    (local $color_index i32)
   
     i32.const 0
     local.set $i
@@ -581,6 +582,51 @@
                 i32.const 0
                 i32.ne
                 if
+                  local.get $i
+                  local.get $dw
+                  i32.mul
+                  local.get $j
+                  i32.add
+                  local.get $data_address
+                  i32.add
+                  i32.load8_u
+                  i32.const 1
+                  i32.eq
+                  if
+                    local.get $color_01
+                    local.set $color_index
+                  end
+
+                  local.get $i
+                  local.get $dw
+                  i32.mul
+                  local.get $j
+                  i32.add
+                  local.get $data_address
+                  i32.add
+                  i32.load8_u
+                  i32.const 2
+                  i32.eq
+                  if
+                    local.get $color_02
+                    local.set $color_index
+                  end
+
+                  local.get $i
+                  local.get $dw
+                  i32.mul
+                  local.get $j
+                  i32.add
+                  local.get $data_address
+                  i32.add
+                  i32.load8_u
+                  i32.const 3
+                  i32.eq
+                  if
+                    local.get $color_03
+                    local.set $color_index
+                  end
+
                   ;; Calculate pixel buffer offset: (dy+i) * width + (dx+j)
                   local.get $dy
                   local.get $i
@@ -593,8 +639,8 @@
                   i32.add
                   i32.const 4
                   i32.mul
-                
-                  global.get $green
+                  
+                  local.get $color_index
                   i32.store
                 end
               end
@@ -1023,13 +1069,13 @@
     i32.eq
     if
       ;; if maze cleared just show the you win modal
-      i32.const 0       ;; dx
-      i32.const 0       ;; dy
+      i32.const 40      ;; dx
+      i32.const 64      ;; dy
       i32.const 80      ;; dw
       i32.const 32      ;; dh
       global.get $black ;; color_01
-      global.get $clear ;; color_02
-      global.get $clear ;; color_03
+      global.get $red   ;; color_02
+      global.get $blue  ;; color_03
       i32.const 130880  ;; data_address
       call $render_color_indexed_sprite
       ;; increment $countup if less than 179
