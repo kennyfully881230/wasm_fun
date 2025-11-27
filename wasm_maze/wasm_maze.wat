@@ -3,13 +3,13 @@
   (memory (export "memory") 3) ;; 196608 bytes
   (global $camera_x i32 (i32.const 72))
   (global $camera_y i32 (i32.const 72))
-  (global $countup (mut i32) (i32.const 0)) ;; The countdown before the Game Scene
+  (global $countup (mut i32) (i32.const 0))
   (global $gamebox_height i32 (i32.const 160))
   (global $gamebox_width i32 (i32.const 160))
   (global $gamebox_area i32 (i32.const 25600)) ;; gamebox_width * gamebox_height
-  (global $key_blue i32 (i32.const 0))
-  (global $key_green i32 (i32.const 0))
-  (global $key_red i32 (i32.const 0))
+  (global $has_key_blue i32 (i32.const 0))
+  (global $has_key_green i32 (i32.const 0))
+  (global $has_key_red i32 (i32.const 0))
   (global $maze_cleared (mut i32) (i32.const 0))
   (global $maze_index (mut i32) (i32.const 0))
   (global $maze_selected (mut i32) (i32.const 0))
@@ -43,6 +43,65 @@
       return
     end
     local.get $value
+  )
+
+  ;; calculate a tile's X-position on the grid (column * tile_size)
+  (func $get_tile_map_x (param $i i32) (result i32)
+    local.get $i
+    i32.const 20
+    i32.rem_s
+    i32.const 16
+    i32.mul
+    global.get $camera_x
+    i32.add
+    global.get $player_x
+    i32.sub
+  )
+
+  ;; calculate a tile's Y-position on the grid (row * tile_size)
+  (func $get_tile_map_y (param $i i32) (result i32)
+    local.get $i
+    f32.convert_i32_s
+    i32.const 20
+    f32.convert_i32_s
+    f32.div
+    f32.floor
+    i32.trunc_f32_s
+    i32.const 16
+    i32.mul
+    global.get $camera_y
+    i32.add
+    global.get $player_y
+    i32.sub
+  )
+
+  ;; calculates the absolute memory address of the tile data at index $i
+  (func $get_tile_data_address (param $i i32) (result i32)
+    i32.const 400
+    global.get $maze_index
+    i32.mul
+    i32.const 134000
+    i32.add
+    local.get $i
+    i32.add
+  )
+
+  (func $render_key
+    (param $i i32)
+    (param $color_01 i32)
+    (param $color_02 i32)
+    (param $color_03 i32)
+    local.get $i         ;; key_red_dx
+    call $get_tile_map_x
+    local.get $i         ;; key_red_dy
+    call $get_tile_map_y
+    i32.const 16         ;; key_red_dw
+    i32.const 16         ;; key_red_dh
+    local.get $color_01
+    local.get $color_02
+    local.get $color_03
+    i32.const 116736     ;; data_address
+    call $render_color_indexed_sprite
   )
 
   ;; gray out the entire screen
@@ -275,75 +334,79 @@
   (func $render_map (local $i i32)
     loop $loop
       ;; check for sweet_rock
-      i32.const 400
-      global.get $maze_index
-      i32.mul
-      i32.const 134000
-      i32.add
       local.get $i
-      i32.add
+      call $get_tile_data_address
       i32.load8_u
       i32.const 1
       i32.eq
       if
         ;; sweet_rock_x
         local.get $i
-        i32.const 20
-        i32.rem_s
-        i32.const 16
-        i32.mul
-        global.get $camera_x
-        i32.add
-        global.get $player_x
-        i32.sub
+        call $get_tile_map_x
         ;; sweet_rock_y
         local.get $i
-        f32.convert_i32_s
-        i32.const 20
-        f32.convert_i32_s
-        f32.div
-        f32.floor
-        i32.trunc_f32_s
-        i32.const 16
-        i32.mul
-        global.get $camera_y
-        i32.add
-        global.get $player_y
-        i32.sub
+        call $get_tile_map_y
         ;; sweet_rock_size
         i32.const 16
         i32.const 104448
         call $render_sprite
       end
       ;; check for wasm_block
-      i32.const 400
-      global.get $maze_index
-      i32.mul
-      i32.const 134000
-      i32.add
       local.get $i
-      i32.add
+      call $get_tile_data_address
       i32.load8_u
       i32.const 2
       i32.eq
       if
         ;; wasm_block_x
         local.get $i
-        i32.const 20
-        i32.rem_s
-        i32.const 16
-        i32.mul
+        call $get_tile_map_x
         ;; wasm_block_y
         local.get $i
-        f32.convert_i32_s
-        i32.const 20
-        f32.convert_i32_s
-        f32.div
-        f32.floor
-        i32.trunc_f32_s
+        call $get_tile_map_y
+        ;; wasm_block_size
         i32.const 16
-        i32.mul
-        call $render_wasm_block
+        i32.const 105472
+        call $render_sprite
+      end
+      ;; check for key_red
+      local.get $i
+      call $get_tile_data_address
+      i32.load8_u
+      i32.const 3
+      i32.eq
+      if
+        local.get $i
+        global.get $red      ;; color_01
+        global.get $clear    ;; color_02
+        global.get $clear    ;; color_03
+        call $render_key
+      end
+      ;; check for key_green
+      local.get $i
+      call $get_tile_data_address
+      i32.load8_u
+      i32.const 4
+      i32.eq
+      if
+        local.get $i
+        global.get $green    ;; color_01
+        global.get $clear    ;; color_02
+        global.get $clear    ;; color_03
+        call $render_key
+      end
+      ;; check for key_blue
+      local.get $i
+      call $get_tile_data_address
+      i32.load8_u
+      i32.const 5
+      i32.eq
+      if
+        local.get $i
+        global.get $blue    ;; color_01
+        global.get $clear    ;; color_02
+        global.get $clear    ;; color_03
+        call $render_key
       end
       ;; increment i
       local.get $i
@@ -534,9 +597,14 @@
     (local $i i32)
     (local $j i32)
     (local $color_index i32)
-  
+
+    ;; for some reason init local variables to avoid rare bugs
     i32.const 0
     local.set $i
+    i32.const 0
+    local.set $j
+    i32.const 0
+    local.set $color_index
   
     loop $loop_y
       i32.const 0
@@ -667,26 +735,6 @@
       i32.lt_s
       br_if $loop_y
     end
-  )
-
-  (func $render_wasm_block (param $x i32) (param $y i32)
-    ;; wasm_block_x
-    local.get $x
-    global.get $camera_x
-    i32.add
-    global.get $player_x
-    i32.sub
-    ;; wasm_block_y
-    local.get $y
-    global.get $camera_y
-    i32.add
-    global.get $player_y
-    i32.sub
-    ;; wasm_block_size
-    i32.const 16
-    ;; wasm_sprite_image_location
-    i32.const 105472
-    call $render_sprite
   )
 
   ;; TITLE_SCENE
@@ -1288,17 +1336,23 @@
   ;; 00 = nothing
   ;; 01 = sweet rock
   ;; 02 = wasm block
+  ;; 03 = key (red)
+  ;; 04 = key (green)
+  ;; 05 = key (blue)
+  ;; 06 = lock (red)
+  ;; 07 = lock (green)
+  ;; 08 = lock (blue)
   (data (i32.const 134000)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\02" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\08" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\07" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\06" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
+   "\01" "\03" "\04" "\05" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
 
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1316,6 +1370,12 @@
   ;; 00 = nothing
   ;; 01 = sweet rock
   ;; 02 = wasm block
+  ;; 03 = key (red)
+  ;; 04 = key (green)
+  ;; 05 = key (blue)
+  ;; 06 = lock (red)
+  ;; 07 = lock (green)
+  ;; 08 = lock (blue)
   (data (i32.const 134400)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1344,6 +1404,12 @@
   ;; 00 = nothing
   ;; 01 = sweet rock
   ;; 02 = wasm block
+  ;; 03 = key (red)
+  ;; 04 = key (green)
+  ;; 05 = key (blue)
+  ;; 06 = lock (red)
+  ;; 07 = lock (green)
+  ;; 08 = lock (blue)
   (data (i32.const 134800)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1372,6 +1438,12 @@
   ;; 00 = nothing
   ;; 01 = sweet rock
   ;; 02 = wasm block
+  ;; 03 = key (red)
+  ;; 04 = key (green)
+  ;; 05 = key (blue)
+  ;; 06 = lock (red)
+  ;; 07 = lock (green)
+  ;; 08 = lock (blue)
   (data (i32.const 135200)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1400,6 +1472,12 @@
   ;; 00 = nothing
   ;; 01 = sweet rock
   ;; 02 = wasm block
+  ;; 03 = key (red)
+  ;; 04 = key (green)
+  ;; 05 = key (blue)
+  ;; 06 = lock (red)
+  ;; 07 = lock (green)
+  ;; 08 = lock (blue)
   (data (i32.const 135600)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1428,6 +1506,12 @@
   ;; 00 = nothing
   ;; 01 = sweet rock
   ;; 02 = wasm block
+  ;; 03 = key (red)
+  ;; 04 = key (green)
+  ;; 05 = key (blue)
+  ;; 06 = lock (red)
+  ;; 07 = lock (green)
+  ;; 08 = lock (blue)
   (data (i32.const 136000)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1456,6 +1540,12 @@
   ;; 00 = nothing
   ;; 01 = sweet rock
   ;; 02 = wasm block
+  ;; 03 = key (red)
+  ;; 04 = key (green)
+  ;; 05 = key (blue)
+  ;; 06 = lock (red)
+  ;; 07 = lock (green)
+  ;; 08 = lock (blue)
   (data (i32.const 136400)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1484,6 +1574,12 @@
   ;; 00 = nothing
   ;; 01 = sweet rock
   ;; 02 = wasm block
+  ;; 03 = key (red)
+  ;; 04 = key (green)
+  ;; 05 = key (blue)
+  ;; 06 = lock (red)
+  ;; 07 = lock (green)
+  ;; 08 = lock (blue)
   (data (i32.const 136800)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1512,6 +1608,12 @@
   ;; 00 = nothing
   ;; 01 = sweet rock
   ;; 02 = wasm block
+  ;; 03 = key (red)
+  ;; 04 = key (green)
+  ;; 05 = key (blue)
+  ;; 06 = lock (red)
+  ;; 07 = lock (green)
+  ;; 08 = lock (blue)
   (data (i32.const 137200)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1540,6 +1642,12 @@
   ;; 00 = nothing
   ;; 01 = sweet rock
   ;; 02 = wasm block
+  ;; 03 = key (red)
+  ;; 04 = key (green)
+  ;; 05 = key (blue)
+  ;; 06 = lock (red)
+  ;; 07 = lock (green)
+  ;; 08 = lock (blue)
   (data (i32.const 137600)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1568,6 +1676,12 @@
   ;; 00 = nothing
   ;; 01 = sweet rock
   ;; 02 = wasm block
+  ;; 03 = key (red)
+  ;; 04 = key (green)
+  ;; 05 = key (blue)
+  ;; 06 = lock (red)
+  ;; 07 = lock (green)
+  ;; 08 = lock (blue)
   (data (i32.const 138000)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
