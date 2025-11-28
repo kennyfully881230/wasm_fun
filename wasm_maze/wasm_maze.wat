@@ -86,6 +86,48 @@
     i32.add
   )
 
+  (func $pushback_player
+    global.get $player_mode
+    i32.const 1
+    i32.eq
+    if
+      global.get $player_y
+      i32.const 1
+      i32.add
+      global.set $player_y
+    else
+      global.get $player_mode
+      i32.const 2
+      i32.eq
+      if
+        global.get $player_y
+        i32.const 1
+        i32.sub
+        global.set $player_y
+      else
+        global.get $player_mode
+        i32.const 3
+        i32.eq
+        if
+          global.get $player_x
+          i32.const 1
+          i32.add
+          global.set $player_x
+        else
+          global.get $player_mode
+          i32.const 4
+          i32.eq
+          if
+            global.get $player_x
+            i32.const 1
+            i32.sub
+            global.set $player_x
+          end
+        end
+      end
+    end
+  )
+
   (func $render_key
     (param $i i32)
     (param $color_01 i32)
@@ -137,132 +179,72 @@
     i32.const 102400
     memory.fill
   )
+
+  (func $player_to_object_collision (param $i i32) (result i32)
+    global.get $player_x
+    i32.const 3
+    i32.add
+    global.get $player_y
+    i32.const 6
+    i32.add
+    global.get $player_hitbox_size ;; 10
+    ;; object_x
+    local.get $i
+    i32.const 20
+    i32.rem_s
+    i32.const 16
+    i32.mul
+    ;; object_y
+    local.get $i
+    f32.convert_i32_s
+    i32.const 20
+    f32.convert_i32_s
+    f32.div
+    f32.floor
+    i32.trunc_f32_s
+    i32.const 16
+    i32.mul
+    ;; object_size
+    i32.const 16
+    call $square_collision
+    i32.const 1 ;; check for true
+    i32.eq
+  )
+
+  (func $check_item_on_map (param $i i32) (param $item_index i32) (result i32)
+    i32.const 400
+    global.get $maze_index
+    i32.mul
+    i32.const 134000
+    i32.add
+    local.get $i
+    i32.add
+    i32.load8_u
+    local.get $item_index
+    i32.eq
+  )
   
   (func $collision_checks (local $i i32)
     loop $loop
       ;; check if a sweet_rock collides
-      i32.const 400
-      global.get $maze_index
-      i32.mul
-      i32.const 134000
-      i32.add
       local.get $i
-      i32.add
-      i32.load8_u
       i32.const 1
-      i32.eq
+      call $check_item_on_map
       if
-        global.get $player_x
-        i32.const 3
-        i32.add
-        global.get $player_y
-        i32.const 6
-        i32.add
-        global.get $player_hitbox_size ;; 10
-        ;; sweet_rock_x
         local.get $i
-        i32.const 20
-        i32.rem_s
-        i32.const 16
-        i32.mul
-        ;; sweet_rock_y
-        local.get $i
-        f32.convert_i32_s
-        i32.const 20
-        f32.convert_i32_s
-        f32.div
-        f32.floor
-        i32.trunc_f32_s
-        i32.const 16
-        i32.mul
-        ;; sweet_rock_size
-        i32.const 16
-        call $square_collision
-        i32.const 1 ;; check for true
-        i32.eq
+        call $player_to_object_collision
         if
-          global.get $player_mode
-          i32.const 1
-          i32.eq
-          if
-            global.get $player_y
-            i32.const 1
-            i32.add
-            global.set $player_y
-          else
-            global.get $player_mode
-            i32.const 2
-            i32.eq
-            if
-              global.get $player_y
-              i32.const 1
-              i32.sub
-              global.set $player_y
-            else
-              global.get $player_mode
-              i32.const 3
-              i32.eq
-              if
-                global.get $player_x
-                i32.const 1
-                i32.add
-                global.set $player_x
-              else
-                global.get $player_mode
-                i32.const 4
-                i32.eq
-                if
-                  global.get $player_x
-                  i32.const 1
-                  i32.sub
-                  global.set $player_x
-                end
-              end
-            end
-          end
+          call $pushback_player
         end
       end
 
       ;; check if a wasm_block collides
-      i32.const 400
-      global.get $maze_index
-      i32.mul
-      i32.const 134000
-      i32.add
       local.get $i
-      i32.add
-      i32.load8_u
       i32.const 2
-      i32.eq
+      call $check_item_on_map
       if
-        global.get $player_x
-        i32.const 3
-        i32.add
-        global.get $player_y
-        i32.const 6
-        i32.add
-        global.get $player_hitbox_size ;; 10
-        ;; wasm_block_x
         local.get $i
-        i32.const 20
-        i32.rem_s
-        i32.const 16
-        i32.mul
-        ;; wasm_block_y
-        local.get $i
-        f32.convert_i32_s
-        i32.const 20
-        f32.convert_i32_s
-        f32.div
-        f32.floor
-        i32.trunc_f32_s
-        i32.const 16
-        i32.mul
-        ;; wasm_block_size
-        i32.const 16
-        call $square_collision
-        i32.const 1 ;; check for true
-        i32.eq
+        call $player_to_object_collision
         if
           ;; set maze_cleared
           i32.const 1
@@ -278,6 +260,42 @@
             i32.const 1
             i32.store8
           end
+        end
+      end
+
+      ;; check if a lock_red collides
+      local.get $i
+      i32.const 6
+      call $check_item_on_map
+      if
+        local.get $i
+        call $player_to_object_collision
+        if
+          call $pushback_player
+        end
+      end
+      
+      ;; check if a lock_green collides
+      local.get $i
+      i32.const 7
+      call $check_item_on_map
+      if
+        local.get $i
+        call $player_to_object_collision
+        if
+          call $pushback_player
+        end
+      end
+      
+      ;; check if a lock_blue collides
+      local.get $i
+      i32.const 8
+      call $check_item_on_map
+      if
+        local.get $i
+        call $player_to_object_collision
+        if
+          call $pushback_player
         end
       end
       
@@ -1401,7 +1419,7 @@
   ;; 08 = lock (blue)
   (data (i32.const 134000)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\02" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\02" "\01" "\02" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\08" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\07" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\06" "\01"
