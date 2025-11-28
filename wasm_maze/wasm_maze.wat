@@ -104,6 +104,24 @@
     call $render_color_indexed_sprite
   )
 
+  (func $render_lock
+    (param $i i32)
+    (param $color_01 i32)
+    (param $color_02 i32)
+    (param $color_03 i32)
+    local.get $i         ;; key_red_dx
+    call $get_tile_map_x
+    local.get $i         ;; key_red_dy
+    call $get_tile_map_y
+    i32.const 16         ;; key_red_dw
+    i32.const 16         ;; key_red_dh
+    local.get $color_01
+    local.get $color_02
+    local.get $color_03
+    i32.const 116992     ;; data_address
+    call $render_color_indexed_sprite
+  )
+
   ;; gray out the entire screen
   (func $gray_screen
     i32.const 0
@@ -407,6 +425,45 @@
         global.get $clear    ;; color_02
         global.get $clear    ;; color_03
         call $render_key
+      end
+      ;; check for lock_red
+      local.get $i
+      call $get_tile_data_address
+      i32.load8_u
+      i32.const 6
+      i32.eq
+      if
+        local.get $i
+        global.get $red      ;; color_01
+        global.get $white    ;; color_02
+        global.get $clear    ;; color_03
+        call $render_lock
+      end
+      ;; check for lock_green
+      local.get $i
+      call $get_tile_data_address
+      i32.load8_u
+      i32.const 7
+      i32.eq
+      if
+        local.get $i
+        global.get $green    ;; color_01
+        global.get $white    ;; color_02
+        global.get $clear    ;; color_03
+        call $render_lock
+      end
+      ;; check for lock_blue
+      local.get $i
+      call $get_tile_data_address
+      i32.load8_u
+      i32.const 8
+      i32.eq
+      if
+        local.get $i
+        global.get $blue     ;; color_01
+        global.get $white    ;; color_02
+        global.get $clear    ;; color_03
+        call $render_lock
       end
       ;; increment i
       local.get $i
