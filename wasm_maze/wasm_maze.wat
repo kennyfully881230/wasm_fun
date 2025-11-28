@@ -7,9 +7,9 @@
   (global $gamebox_height i32 (i32.const 160))
   (global $gamebox_width i32 (i32.const 160))
   (global $gamebox_area i32 (i32.const 25600)) ;; gamebox_width * gamebox_height
-  (global $has_key_blue i32 (i32.const 0))
-  (global $has_key_green i32 (i32.const 0))
-  (global $has_key_red i32 (i32.const 0))
+  (global $has_key_blue (mut i32) (i32.const 0))
+  (global $has_key_green (mut i32) (i32.const 0))
+  (global $has_key_red (mut i32) (i32.const 0))
   (global $maze_cleared (mut i32) (i32.const 0))
   (global $maze_index (mut i32) (i32.const 0))
   (global $maze_selected (mut i32) (i32.const 0))
@@ -27,8 +27,11 @@
   (global $clear i32 (i32.const 0x00000000))
   (global $white i32 (i32.const 0xFFFFFFFF))
   (global $red i32 (i32.const 0xFF0000FF))
+  (global $red_dark i32 (i32.const 0xFF000080))
   (global $green i32 (i32.const 0xFF00FF00))
+  (global $green_dark i32 (i32.const 0xFF008000))
   (global $blue i32 (i32.const 0xFFFF0000))
+  (global $blue_dark i32 (i32.const 0xFF800000))
   (global $black i32 (i32.const 0xFF000000))
   
   ;; mathmatic abs function
@@ -43,6 +46,35 @@
       return
     end
     local.get $value
+  )
+
+  (func $color_switcher (param $color_01 i32) (param $color_02 i32) (result i32)
+    global.get $timer_60
+    i32.const 29
+    i32.lt_s
+    if
+      local.get $color_01
+      return
+    end
+    local.get $color_02
+  )
+
+  (func $color_switcher_3 (param $color_01 i32) (param $color_02 i32) (param $color_03 i32) (result i32)
+    global.get $timer_30
+    i32.const 9
+    i32.lt_s
+    if
+      local.get $color_01
+      return
+    end
+    global.get $timer_30
+    i32.const 19
+    i32.lt_s
+    if
+      local.get $color_02
+      return
+    end
+    local.get $color_03
   )
 
   ;; calculate a tile's X-position on the grid (column * tile_size)
@@ -280,6 +312,8 @@
           i32.add        
           i32.const 0x09 ;; indicates key_red is picked up
           i32.store8
+          i32.const 1
+          global.set $has_key_red
         end
       end
 
@@ -300,6 +334,8 @@
           i32.add        
           i32.const 0x0A ;; indicates key_green is picked up
           i32.store8
+          i32.const 1
+          global.set $has_key_green
         end
       end
 
@@ -320,6 +356,8 @@
           i32.add        
           i32.const 0x0B ;; indicates key_blue is picked up
           i32.store8
+          i32.const 1
+          global.set $has_key_blue
         end
       end
 
@@ -331,7 +369,24 @@
         local.get $i
         call $player_to_object_collision
         if
-          call $pushback_player
+          global.get $has_key_red
+          i32.const 1
+          i32.eq
+          if          
+            i32.const 400
+            global.get $maze_index
+            i32.mul
+            i32.const 134000
+            i32.add
+            local.get $i
+            i32.add        
+            i32.const 0x0C ;; indicates lock_red is unlocked
+            i32.store8
+            i32.const 0
+            global.set $has_key_red
+          else
+            call $pushback_player
+          end
         end
       end
       
@@ -343,7 +398,24 @@
         local.get $i
         call $player_to_object_collision
         if
-          call $pushback_player
+          global.get $has_key_green
+          i32.const 1
+          i32.eq
+          if          
+            i32.const 400
+            global.get $maze_index
+            i32.mul
+            i32.const 134000
+            i32.add
+            local.get $i
+            i32.add        
+            i32.const 0x0D ;; indicates lock_red is unlocked
+            i32.store8
+            i32.const 0
+            global.set $has_key_green
+          else
+            call $pushback_player
+          end
         end
       end
       
@@ -355,7 +427,24 @@
         local.get $i
         call $player_to_object_collision
         if
-          call $pushback_player
+          global.get $has_key_blue
+          i32.const 1
+          i32.eq
+          if          
+            i32.const 400
+            global.get $maze_index
+            i32.mul
+            i32.const 134000
+            i32.add
+            local.get $i
+            i32.add        
+            i32.const 0x0E ;; indicates lock_red is unlocked
+            i32.store8
+            i32.const 0
+            global.set $has_key_blue
+          else
+            call $pushback_player
+          end
         end
       end
       
@@ -473,7 +562,9 @@
       i32.eq
       if
         local.get $i
-        global.get $red      ;; color_01
+        global.get $red
+        global.get $red_dark
+        call $color_switcher ;; color_01
         global.get $clear    ;; color_02
         global.get $clear    ;; color_03
         call $render_key
@@ -486,7 +577,9 @@
       i32.eq
       if
         local.get $i
-        global.get $green    ;; color_01
+        global.get $green
+        global.get $green_dark
+        call $color_switcher ;; color_01
         global.get $clear    ;; color_02
         global.get $clear    ;; color_03
         call $render_key
@@ -499,7 +592,9 @@
       i32.eq
       if
         local.get $i
-        global.get $blue    ;; color_01
+        global.get $blue
+        global.get $blue_dark
+        call $color_switcher ;; color_01
         global.get $clear    ;; color_02
         global.get $clear    ;; color_03
         call $render_key
@@ -1256,7 +1351,10 @@
       i32.const 64      ;; dy
       i32.const 80      ;; dw
       i32.const 32      ;; dh
-      global.get $black ;; color_01
+      global.get $red_dark
+      global.get $green_dark
+      global.get $blue_dark
+      call $color_switcher_3 ;; color_01
       global.get $red   ;; color_02
       global.get $blue  ;; color_03
       i32.const 130880  ;; data_address
@@ -1477,27 +1575,33 @@
   ;; 06 = lock (red)
   ;; 07 = lock (green)
   ;; 08 = lock (blue)
+  ;; 09 = picked key (red)
+  ;; 0A = picked key (green)
+  ;; 0B = picked key (blue)
+  ;; 0C = unlocked lock (red)
+  ;; 0D = unlocked lock (green)
+  ;; 0E = unlocked lock (blue)
   (data (i32.const 134000)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\02" "\01" "\02" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\08" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\07" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\06" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
-   "\01" "\03" "\04" "\05" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\01" "\00" "\00" "\00" "\00" "\06" "\00" "\01" "\02" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\00" "\01"
 
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
-   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
+   "\01" "\05" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\08"   "\00" "\00" "\00" "\00" "\00" "\01" "\00" "\00" "\00" "\01"
+   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\00" "\00" "\00" "\00" "\00" "\01" "\01" "\01" "\01" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
+   "\01" "\01" "\00" "\00" "\01" "\01" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\01" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\00" "\07"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
+   "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\01" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
+   "\01" "\03" "\00" "\00" "\00" "\01" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\04" "\01"
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
   )
 
@@ -1511,6 +1615,12 @@
   ;; 06 = lock (red)
   ;; 07 = lock (green)
   ;; 08 = lock (blue)
+  ;; 09 = picked key (red)
+  ;; 0A = picked key (green)
+  ;; 0B = picked key (blue)
+  ;; 0C = unlocked lock (red)
+  ;; 0D = unlocked lock (green)
+  ;; 0E = unlocked lock (blue)
   (data (i32.const 134400)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1545,6 +1655,12 @@
   ;; 06 = lock (red)
   ;; 07 = lock (green)
   ;; 08 = lock (blue)
+  ;; 09 = picked key (red)
+  ;; 0A = picked key (green)
+  ;; 0B = picked key (blue)
+  ;; 0C = unlocked lock (red)
+  ;; 0D = unlocked lock (green)
+  ;; 0E = unlocked lock (blue)
   (data (i32.const 134800)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1579,6 +1695,12 @@
   ;; 06 = lock (red)
   ;; 07 = lock (green)
   ;; 08 = lock (blue)
+  ;; 09 = picked key (red)
+  ;; 0A = picked key (green)
+  ;; 0B = picked key (blue)
+  ;; 0C = unlocked lock (red)
+  ;; 0D = unlocked lock (green)
+  ;; 0E = unlocked lock (blue)
   (data (i32.const 135200)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1613,6 +1735,12 @@
   ;; 06 = lock (red)
   ;; 07 = lock (green)
   ;; 08 = lock (blue)
+  ;; 09 = picked key (red)
+  ;; 0A = picked key (green)
+  ;; 0B = picked key (blue)
+  ;; 0C = unlocked lock (red)
+  ;; 0D = unlocked lock (green)
+  ;; 0E = unlocked lock (blue)
   (data (i32.const 135600)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1647,6 +1775,12 @@
   ;; 06 = lock (red)
   ;; 07 = lock (green)
   ;; 08 = lock (blue)
+  ;; 09 = picked key (red)
+  ;; 0A = picked key (green)
+  ;; 0B = picked key (blue)
+  ;; 0C = unlocked lock (red)
+  ;; 0D = unlocked lock (green)
+  ;; 0E = unlocked lock (blue)
   (data (i32.const 136000)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1681,6 +1815,12 @@
   ;; 06 = lock (red)
   ;; 07 = lock (green)
   ;; 08 = lock (blue)
+  ;; 09 = picked key (red)
+  ;; 0A = picked key (green)
+  ;; 0B = picked key (blue)
+  ;; 0C = unlocked lock (red)
+  ;; 0D = unlocked lock (green)
+  ;; 0E = unlocked lock (blue)
   (data (i32.const 136400)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1715,6 +1855,12 @@
   ;; 06 = lock (red)
   ;; 07 = lock (green)
   ;; 08 = lock (blue)
+  ;; 09 = picked key (red)
+  ;; 0A = picked key (green)
+  ;; 0B = picked key (blue)
+  ;; 0C = unlocked lock (red)
+  ;; 0D = unlocked lock (green)
+  ;; 0E = unlocked lock (blue)
   (data (i32.const 136800)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1749,6 +1895,12 @@
   ;; 06 = lock (red)
   ;; 07 = lock (green)
   ;; 08 = lock (blue)
+  ;; 09 = picked key (red)
+  ;; 0A = picked key (green)
+  ;; 0B = picked key (blue)
+  ;; 0C = unlocked lock (red)
+  ;; 0D = unlocked lock (green)
+  ;; 0E = unlocked lock (blue)
   (data (i32.const 137200)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1783,6 +1935,12 @@
   ;; 06 = lock (red)
   ;; 07 = lock (green)
   ;; 08 = lock (blue)
+  ;; 09 = picked key (red)
+  ;; 0A = picked key (green)
+  ;; 0B = picked key (blue)
+  ;; 0C = unlocked lock (red)
+  ;; 0D = unlocked lock (green)
+  ;; 0E = unlocked lock (blue)
   (data (i32.const 137600)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
@@ -1817,6 +1975,12 @@
   ;; 06 = lock (red)
   ;; 07 = lock (green)
   ;; 08 = lock (blue)
+  ;; 09 = picked key (red)
+  ;; 0A = picked key (green)
+  ;; 0B = picked key (blue)
+  ;; 0C = unlocked lock (red)
+  ;; 0D = unlocked lock (green)
+  ;; 0E = unlocked lock (blue)
   (data (i32.const 138000)
    "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
    "\01" "\00" "\00" "\00" "\00" "\01" "\00" "\00" "\00" "\01"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
