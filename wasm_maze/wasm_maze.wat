@@ -133,12 +133,12 @@
     (param $color_01 i32)
     (param $color_02 i32)
     (param $color_03 i32)
-    local.get $i         ;; key_red_dx
+    local.get $i         ;; key_dx
     call $get_tile_map_x
-    local.get $i         ;; key_red_dy
+    local.get $i         ;; key_dy
     call $get_tile_map_y
-    i32.const 16         ;; key_red_dw
-    i32.const 16         ;; key_red_dh
+    i32.const 16         ;; key_dw
+    i32.const 16         ;; key_dh
     local.get $color_01
     local.get $color_02
     local.get $color_03
@@ -260,6 +260,66 @@
             i32.const 1
             i32.store8
           end
+        end
+      end
+
+      ;; check if a key_red collides
+      local.get $i
+      i32.const 3
+      call $check_item_on_map
+      if
+        local.get $i
+        call $player_to_object_collision
+        if          
+          i32.const 400
+          global.get $maze_index
+          i32.mul
+          i32.const 134000
+          i32.add
+          local.get $i
+          i32.add        
+          i32.const 0x09 ;; indicates key_red is picked up
+          i32.store8
+        end
+      end
+
+      ;; check if a key_green collides
+      local.get $i
+      i32.const 4
+      call $check_item_on_map
+      if
+        local.get $i
+        call $player_to_object_collision
+        if          
+          i32.const 400
+          global.get $maze_index
+          i32.mul
+          i32.const 134000
+          i32.add
+          local.get $i
+          i32.add        
+          i32.const 0x0A ;; indicates key_green is picked up
+          i32.store8
+        end
+      end
+
+      ;; check if a key_blue collides
+      local.get $i
+      i32.const 5
+      call $check_item_on_map
+      if
+        local.get $i
+        call $player_to_object_collision
+        if          
+          i32.const 400
+          global.get $maze_index
+          i32.mul
+          i32.const 134000
+          i32.add
+          local.get $i
+          i32.add        
+          i32.const 0x0B ;; indicates key_blue is picked up
+          i32.store8
         end
       end
 
