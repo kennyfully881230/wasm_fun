@@ -15,6 +15,7 @@
   (global $maze_selected (mut i32) (i32.const 0))
   (global $player_hitbox_size i32 (i32.const 10))
   (global $player_mode (mut i32) (i32.const 0))
+  (global $player_lucky (mut i32) (i32.const 0))
   (global $player_size (mut i32) (i32.const 16))
   (global $player_x (mut i32) (i32.const 16))
   (global $player_y (mut i32) (i32.const 16))
@@ -31,6 +32,7 @@
   (global $red i32 (i32.const 0xFF0000FF))
   (global $red_dark i32 (i32.const 0xFF000080))
   (global $yellow i32 (i32.const 0xFF00FFFF))
+  (global $yellow_dark i32 (i32.const 0xFF008080))
   (global $green i32 (i32.const 0xFF00FF00))
   (global $green_dark i32 (i32.const 0xFF008000))
   (global $blue i32 (i32.const 0xFFFF0000))
@@ -697,6 +699,21 @@
       br_if $loop
     end
   )
+
+  (func $check_for_lucky (result i32 i32 i32)
+    global.get $player_lucky
+    i32.const 1
+    i32.eq
+    if
+      global.get $red_dark
+      global.get $red
+      global.get $yellow
+      return
+    end
+    global.get $black
+    global.get $wasm_blue
+    global.get $white
+  )
   
   (func $render_player
     global.get $timer_30
@@ -707,9 +724,7 @@
       global.get $camera_y
       i32.const 16
       i32.const 16
-      global.get $black
-      global.get $wasm_blue
-      global.get $white
+      call $check_for_lucky
       global.get $red
       global.get $clear
       i32.const 103424
@@ -723,9 +738,7 @@
       global.get $camera_y
       i32.const 16
       i32.const 16
-      global.get $black
-      global.get $wasm_blue
-      global.get $white
+      call $check_for_lucky
       global.get $red
       global.get $clear
       i32.const 103680
@@ -1103,6 +1116,18 @@
             global.set $maze_index ;; set the maze index
             i32.const 1
             global.set $maze_selected
+
+            ;; Check to see if player is lucky
+            global.get $timer_60
+            i32.const 49
+            i32.ge_s
+            if
+              i32.const 1
+              global.set $player_lucky
+            else
+              i32.const 0
+              global.set $player_lucky
+            end
 
             ;; TODO: set player x and y depending on maze
             local.get $i
