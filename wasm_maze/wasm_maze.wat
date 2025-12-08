@@ -1119,7 +1119,7 @@
 
             ;; Check to see if player is lucky
             global.get $timer_60
-            i32.const 49
+            i32.const 56 ;; player will have a 5% chance to be lucky
             i32.ge_s
             if
               i32.const 1
