@@ -658,7 +658,7 @@
       if
         local.get $i
         global.get $red      ;; color_01
-        global.get $white    ;; color_02
+        global.get $yellow   ;; color_02
         global.get $clear    ;; color_03
         call $render_lock
       end
@@ -670,9 +670,9 @@
       i32.eq
       if
         local.get $i
-        global.get $green    ;; color_01
-        global.get $white    ;; color_02
-        global.get $clear    ;; color_03
+        global.get $green_dark ;; color_01
+        global.get $yellow     ;; color_02
+        global.get $clear      ;; color_03
         call $render_lock
       end
       ;; check for lock_blue
@@ -684,7 +684,7 @@
       if
         local.get $i
         global.get $blue     ;; color_01
-        global.get $white    ;; color_02
+        global.get $yellow   ;; color_02
         global.get $clear    ;; color_03
         call $render_lock
       end
@@ -1415,6 +1415,56 @@
     else
       call $render_map
       call $render_player
+      global.get $has_key_red
+      i32.const 1
+      i32.eq
+      if
+        i32.const 0
+        i32.const 0
+        i32.const 8
+        i32.const 8
+        global.get $red
+        global.get $clear
+        global.get $clear
+        global.get $clear
+        global.get $clear
+        i32.const 132096
+        call $render_color_indexed_sprite
+      end
+
+      global.get $has_key_green
+      i32.const 1
+      i32.eq
+      if
+        i32.const 8
+        i32.const 0
+        i32.const 8
+        i32.const 8
+        global.get $green
+        global.get $clear
+        global.get $clear
+        global.get $clear
+        global.get $clear
+        i32.const 132096
+        call $render_color_indexed_sprite
+      end
+
+      global.get $has_key_blue
+      i32.const 1
+      i32.eq
+      if
+        i32.const 16
+        i32.const 0
+        i32.const 8
+        i32.const 8
+        global.get $blue
+        global.get $clear
+        global.get $clear
+        global.get $clear
+        global.get $clear
+        i32.const 132096
+        call $render_color_indexed_sprite
+      end
       ;; update player pos
       global.get $pointer_x
       i32.const 255
