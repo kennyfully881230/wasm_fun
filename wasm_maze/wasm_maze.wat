@@ -1,5 +1,6 @@
 ;; Kenny Fully made this example. May GOD bless you.
 (module
+  (import "sound" "playDataSound" (func $play_data_sound (param i32)))
   (memory (export "memory") 3) ;; 196608 bytes
   (global $camera_x i32 (i32.const 72))
   (global $camera_y i32 (i32.const 72))
@@ -84,6 +85,30 @@
     local.get $color_03
   )
 
+  (func $sound_switcher_3
+    global.get $timer_30
+    i32.const 9
+    i32.lt_s
+    if
+      i32.const 141721
+      i32.load8_u
+      call $play_data_sound
+    else
+      global.get $timer_30
+      i32.const 19
+      i32.lt_s
+      if
+        i32.const 141722
+        i32.load8_u
+        call $play_data_sound
+      else
+        i32.const 141723
+        i32.load8_u
+        call $play_data_sound
+      end
+    end    
+  )
+
   ;; calculate a tile's X-position on the grid (column * tile_size)
   (func $get_tile_map_x (param $i i32) (result i32)
     local.get $i
@@ -126,6 +151,9 @@
   )
 
   (func $pushback_player
+    i32.const 141721
+    i32.load8_u
+    call $play_data_sound
     global.get $player_mode
     i32.const 1
     i32.eq
@@ -356,6 +384,10 @@
         local.get $i
         call $player_to_object_collision
         if          
+          i32.const 141722
+          i32.load8_u
+          call $play_data_sound
+
           i32.const 400
           global.get $maze_index
           i32.mul
@@ -378,6 +410,10 @@
         local.get $i
         call $player_to_object_collision
         if          
+          i32.const 141722
+          i32.load8_u
+          call $play_data_sound
+
           i32.const 400
           global.get $maze_index
           i32.mul
@@ -400,6 +436,10 @@
         local.get $i
         call $player_to_object_collision
         if          
+          i32.const 141722
+          i32.load8_u
+          call $play_data_sound
+
           i32.const 400
           global.get $maze_index
           i32.mul
@@ -426,6 +466,10 @@
           i32.const 1
           i32.eq
           if          
+            i32.const 141723
+            i32.load8_u
+            call $play_data_sound
+
             i32.const 400
             global.get $maze_index
             i32.mul
@@ -455,6 +499,10 @@
           i32.const 1
           i32.eq
           if          
+            i32.const 141723
+            i32.load8_u
+            call $play_data_sound
+
             i32.const 400
             global.get $maze_index
             i32.mul
@@ -484,6 +532,10 @@
           i32.const 1
           i32.eq
           if          
+            i32.const 141723
+            i32.load8_u
+            call $play_data_sound
+
             i32.const 400
             global.get $maze_index
             i32.mul
@@ -1395,6 +1447,7 @@
       global.get $clear ;; color_05
       i32.const 135552  ;; data_address
       call $render_color_indexed_sprite
+      call $sound_switcher_3
       ;; increment $countup if less than 179
       global.get $countup
       i32.const 179
@@ -2385,6 +2438,8 @@
     "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
     "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
     ;; 141721
-  )  
+    ;; data_notes = 4 bytes
+    "\E0\90\70\50"
+  )
 )
 
