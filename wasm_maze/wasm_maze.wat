@@ -25,6 +25,7 @@
   (global $scene_index (mut i32) (i32.const 0)) ;; current scene 0 = Title; 1 = Maze Select; 2 = Game
   (global $timer_30 (mut i32) (i32.const 0)) ;; 30 frame counter
   (global $timer_60 (mut i32) (i32.const 0)) ;; 60 frame counter
+  (global $timer_cooldown_15 (mut i32) (i32.const 0)) ;; used for limiting repeating sounds
   (global $title_image_loaded (mut i32) (i32.const 0)) ;; check to see if title image loaded
   ;; color format ABGR
   (global $clear i32 (i32.const 0x00000000))
@@ -90,21 +91,42 @@
     i32.const 9
     i32.lt_s
     if
-      i32.const 141721
-      i32.load16_u
-      call $play_data_sound
+      global.get $timer_cooldown_15
+      i32.const 0
+      i32.eq
+      if
+        i32.const 9
+        global.set $timer_cooldown_15
+        i32.const 141721
+        i32.load16_u
+        call $play_data_sound
+      end
     else
       global.get $timer_30
       i32.const 19
       i32.lt_s
       if
-        i32.const 141723
-        i32.load16_u
-        call $play_data_sound
+        global.get $timer_cooldown_15
+        i32.const 0
+        i32.eq
+        if
+          i32.const 9
+          global.set $timer_cooldown_15
+          i32.const 141723
+          i32.load16_u
+          call $play_data_sound
+        end
       else
-        i32.const 141725
-        i32.load16_u
-        call $play_data_sound
+        global.get $timer_cooldown_15
+        i32.const 0
+        i32.eq
+        if
+          i32.const 9
+          global.set $timer_cooldown_15
+          i32.const 141725
+          i32.load16_u
+          call $play_data_sound
+        end
       end
     end    
   )
@@ -151,9 +173,17 @@
   )
 
   (func $pushback_player
-    i32.const 141721
-    i32.load16_u
-    call $play_data_sound
+    global.get $timer_cooldown_15
+    i32.const 0
+    i32.eq
+    if
+      i32.const 15
+      global.set $timer_cooldown_15
+      i32.const 141721
+      i32.load16_u
+      call $play_data_sound
+    end
+    
     global.get $player_mode
     i32.const 1
     i32.eq
@@ -1664,6 +1694,16 @@
     else
       i32.const 0
       global.set $timer_30
+    end
+
+    global.get $timer_cooldown_15
+    i32.const 0
+    i32.gt_s
+    if
+      global.get $timer_cooldown_15
+      i32.const 1
+      i32.sub
+      global.set $timer_cooldown_15
     end
   )
 
