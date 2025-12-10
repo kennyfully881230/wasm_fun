@@ -91,19 +91,19 @@
     i32.lt_s
     if
       i32.const 141721
-      i32.load8_u
+      i32.load16_u
       call $play_data_sound
     else
       global.get $timer_30
       i32.const 19
       i32.lt_s
       if
-        i32.const 141722
-        i32.load8_u
+        i32.const 141723
+        i32.load16_u
         call $play_data_sound
       else
-        i32.const 141723
-        i32.load8_u
+        i32.const 141725
+        i32.load16_u
         call $play_data_sound
       end
     end    
@@ -152,7 +152,7 @@
 
   (func $pushback_player
     i32.const 141721
-    i32.load8_u
+    i32.load16_u
     call $play_data_sound
     global.get $player_mode
     i32.const 1
@@ -384,8 +384,8 @@
         local.get $i
         call $player_to_object_collision
         if          
-          i32.const 141722
-          i32.load8_u
+          i32.const 141723
+          i32.load16_u
           call $play_data_sound
 
           i32.const 400
@@ -410,8 +410,8 @@
         local.get $i
         call $player_to_object_collision
         if          
-          i32.const 141722
-          i32.load8_u
+          i32.const 141723
+          i32.load16_u
           call $play_data_sound
 
           i32.const 400
@@ -436,8 +436,8 @@
         local.get $i
         call $player_to_object_collision
         if          
-          i32.const 141722
-          i32.load8_u
+          i32.const 141723
+          i32.load16_u
           call $play_data_sound
 
           i32.const 400
@@ -466,8 +466,8 @@
           i32.const 1
           i32.eq
           if          
-            i32.const 141723
-            i32.load8_u
+            i32.const 141725
+            i32.load16_u
             call $play_data_sound
 
             i32.const 400
@@ -499,8 +499,8 @@
           i32.const 1
           i32.eq
           if          
-            i32.const 141723
-            i32.load8_u
+            i32.const 141725
+            i32.load16_u
             call $play_data_sound
 
             i32.const 400
@@ -532,8 +532,8 @@
           i32.const 1
           i32.eq
           if          
-            i32.const 141723
-            i32.load8_u
+            i32.const 141725
+            i32.load16_u
             call $play_data_sound
 
             i32.const 400
@@ -2438,8 +2438,15 @@
     "\01" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00"   "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\00" "\01"
     "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"   "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01" "\01"
     ;; 141721
-    ;; data_notes = 4 bytes
-    "\E0\90\70\50"
+    ;; data_notes = 16 bytes
+    "\06\01" ;; 262 = DO C4 (Middle C)
+    "\26\01" ;; 294 = RE D4
+    "\4A\01" ;; 330 = MI E4
+    "\5D\01" ;; 349 = FA F4
+    "\88\01" ;; 392 = SO (Sol) G4
+    "\B8\01" ;; 440 = LA A4
+    "\EE\01" ;; 494 = TI (Si) B4
+    "\0B\02" ;; 523 = DO C5 (High C)
   )
 )
 
