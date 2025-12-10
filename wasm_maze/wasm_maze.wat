@@ -308,14 +308,6 @@
     call $render_color_indexed_sprite
   )
 
-  ;; gray out the entire screen
-  (func $gray_screen
-    i32.const 0
-    i32.const 127
-    i32.const 102400
-    memory.fill
-  )
-
   (func $rgb_fill_screen
     (param $red i32)
     (param $green i32)
@@ -331,7 +323,6 @@
       i32.mul
       local.get $red
       i32.store8
-
       local.get $i
       i32.const 4
       i32.mul
@@ -347,7 +338,6 @@
       i32.add
       local.get $blue
       i32.store8
-
       local.get $i
       i32.const 4
       i32.mul
@@ -365,14 +355,6 @@
       i32.lt_s
       br_if $loop
     end
-  )
-
-  ;; clear the entire screen
-  (func $clear_screen
-    i32.const 0
-    i32.const 0
-    i32.const 102400
-    memory.fill
   )
 
   (func $player_to_object_collision (param $i i32) (result i32)
@@ -1112,7 +1094,10 @@
     i32.const 0
     i32.eq
       if
-        call $clear_screen
+        i32.const 0x97
+        i32.const 0x81
+        i32.const 0xF0
+        call $rgb_fill_screen
         ;; render maze select buttons
         loop $loop
           ;; button_x
@@ -1518,12 +1503,15 @@
 
   ;; GAME_SCENE
   (func $game_scene
-    call $clear_screen
     ;; check to see if maze cleared
     global.get $maze_cleared
     i32.const 1
     i32.eq
     if
+      i32.const 0xFF
+      i32.const 0xFF
+      i32.const 0xFF
+      call $rgb_fill_screen
       ;; if maze cleared just show the you win modal
       i32.const 40      ;; dx
       i32.const 64      ;; dy
@@ -1558,6 +1546,11 @@
     	global.set $scene_index
       end
     else
+      i32.const 0xDF
+      i32.const 0xFF
+      i32.const 0xDF
+      call $rgb_fill_screen
+
       call $render_map
       call $render_player
       global.get $has_key_red
