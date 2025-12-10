@@ -13,6 +13,7 @@
   (global $has_key_red (mut i32) (i32.const 0))
   (global $maze_cleared (mut i32) (i32.const 0))
   (global $maze_index (mut i32) (i32.const 0))
+  (global $maze_init (mut i32) (i32.const 0))
   (global $maze_selected (mut i32) (i32.const 0))
   (global $player_hitbox_size i32 (i32.const 10))
   (global $player_mode (mut i32) (i32.const 0))
@@ -313,6 +314,57 @@
     i32.const 127
     i32.const 102400
     memory.fill
+  )
+
+  (func $rgb_fill_screen
+    (param $red i32)
+    (param $green i32)
+    (param $blue i32)
+    (local $i i32)
+
+    i32.const 0
+    local.set $i
+
+    loop $loop      
+      local.get $i
+      i32.const 4
+      i32.mul
+      local.get $red
+      i32.store8
+
+      local.get $i
+      i32.const 4
+      i32.mul
+      i32.const 1
+      i32.add
+      local.get $green
+      i32.store8
+
+      local.get $i
+      i32.const 4
+      i32.mul
+      i32.const 2
+      i32.add
+      local.get $blue
+      i32.store8
+
+      local.get $i
+      i32.const 4
+      i32.mul
+      i32.const 3
+      i32.add
+      i32.const 0xFF ;; ALPHA
+      i32.store8
+
+      local.get $i
+      i32.const 1
+      i32.add
+      local.set $i
+      local.get $i
+      i32.const 25600
+      i32.lt_s
+      br_if $loop
+    end
   )
 
   ;; clear the entire screen
@@ -1194,6 +1246,9 @@
           i32.const 1
           i32.eq
           if
+            i32.const 1
+            global.set $maze_init
+          
             local.get $i
             global.set $maze_index ;; set the maze index
             i32.const 1
@@ -1335,10 +1390,17 @@
       else
         ;; for when maze selected
         global.get $countup
-        i32.const 179
+        i32.const 59
 	    i32.lt_s
         if
-          call $gray_screen
+          i32.const 0x3B
+          global.get $countup
+          i32.sub
+          i32.const 0x3B
+          global.get $countup
+          i32.sub
+          i32.const 0x3B
+          call $rgb_fill_screen
           ;; button_x
           i32.const 16
           global.get $maze_index
@@ -1611,6 +1673,30 @@
       end
       ;; check for solids etc
       call $collision_checks
+    end
+
+    ;; just a fade in
+    global.get $maze_init
+    i32.const 1
+    i32.eq
+    if
+      global.get $countup
+      global.get $countup
+      i32.const 0x3B
+      call $rgb_fill_screen
+
+      global.get $countup
+      i32.const 59
+      i32.gt_s
+      if
+        i32.const 0
+        global.set $maze_init
+      else
+        global.get $countup
+        i32.const 1
+        i32.add
+        global.set $countup
+      end
     end
   )
 
