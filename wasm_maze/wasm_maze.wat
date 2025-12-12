@@ -308,6 +308,27 @@
     call $render_color_indexed_sprite
   )
 
+  (func $rgb_color_mix
+    (param $red i32)
+    (param $green i32)
+    (param $blue i32)
+    (result i32)
+    i32.const 141737
+    local.get $red
+    i32.store8
+    i32.const 141738
+    local.get $green
+    i32.store8
+    i32.const 141739
+    local.get $blue
+    i32.store8
+    i32.const 141740
+    i32.const 0xFF
+    i32.store8
+    i32.const 141737
+    i32.load
+  )
+
   (func $rgb_fill_screen
     (param $red i32)
     (param $green i32)
@@ -323,6 +344,7 @@
       i32.mul
       local.get $red
       i32.store8
+
       local.get $i
       i32.const 4
       i32.mul
@@ -338,6 +360,7 @@
       i32.add
       local.get $blue
       i32.store8
+
       local.get $i
       i32.const 4
       i32.mul
@@ -696,11 +719,15 @@
       if
         local.get $i
         global.get $black        ;; color_01
-        global.get $white        ;; color_02
-        global.get $red_light
-        global.get $red
-        global.get $red_dark
-        call $color_switcher_3   ;; color_03
+        i32.const 0xFFF5F5FF        
+        i32.const 0xFFF7F7FF        
+        global.get $white        
+        call $color_switcher_3   ;; color_02
+        i32.const 141741
+        i32.load8_u
+        i32.const 0x00
+        i32.const 0x00
+        call $rgb_color_mix      ;; color_03
         global.get $wasm_blue    ;; color_04
         global.get $brown_light  ;; color_05
         call $render_sweet_rock
@@ -1730,18 +1757,7 @@
       i32.const 128256
       call $render_color_indexed_sprite
     end
-    global.get $timer_60
-    i32.const 59
-    i32.lt_s
-    if
-      global.get $timer_60
-      i32.const 1
-      i32.add
-      global.set $timer_60
-    else
-      i32.const 0
-      global.set $timer_60
-    end
+
     global.get $timer_30
     i32.const 29
     i32.lt_s
@@ -1754,6 +1770,27 @@
       i32.const 0
       global.set $timer_30
     end
+
+    global.get $timer_60
+    i32.const 59
+    i32.lt_s
+    if
+      global.get $timer_60
+      i32.const 1
+      i32.add
+      global.set $timer_60
+    else
+      i32.const 0
+      global.set $timer_60
+    end
+
+    ;; TODO: change timers to memory only
+    i32.const 141741 ;; timer_256
+    i32.const 141741
+    i32.load8_u
+    i32.const 4
+    i32.add
+    i32.store8
 
     global.get $timer_cooldown_15
     i32.const 0
@@ -2546,6 +2583,12 @@
     "\B8\01" ;; 440 = LA A4
     "\EE\01" ;; 494 = TI (Si) B4
     "\0B\02" ;; 523 = DO C5 (High C)
+    ;; 141737 
+    ;; color_mixer = 4 bytes
+    "\00\00\00\FF"
+    ;; 141741
+    ;; counter_256_up = 1 byte
+    "\00"
   )
 )
 
