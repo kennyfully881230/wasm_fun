@@ -76,10 +76,11 @@
        },
       }
      })
-     const memory = new Uint8Array(instance.exports.memory.buffer)
+
+     const wasmBuffer = instance.exports.memory.buffer
      const pointerX = instance.exports.pointer_x
      const pointerY = instance.exports.pointer_y
-     const imageData = new ImageData(160, 160)
+     const imageData = new ImageData(new Uint8ClampedArray(wasmBuffer, 0, 102400), 160, 160)
      const frameTime = 1000 / 60
      let lastTime = performance.now()
      let activeMousePointer = false
@@ -92,7 +93,6 @@
         pointerX.value = pointerMap.get('x')
         pointerY.value = pointerMap.get('y')
         instance.exports.render_frame()
-        imageData.data.set(memory.subarray(0, 102400))
         ctx.putImageData(imageData, 0, 0)
       }
 
