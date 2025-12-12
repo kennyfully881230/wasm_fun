@@ -1258,117 +1258,117 @@
           i32.const 1
           i32.eq
           if
-            i32.const 1
-            global.set $maze_init
-          
-            local.get $i
-            global.set $maze_index ;; set the maze index
-            i32.const 1
-            global.set $maze_selected
-
-            ;; Check to see if player is lucky
-            global.get $timer_60
-            i32.const 56 ;; player will have a 5% chance to be lucky
-            i32.ge_s
-            if
-              i32.const 1
-              global.set $player_lucky
-            else
-              i32.const 0
-              global.set $player_lucky
-            end
-
-            ;; TODO: set player x and y depending on maze
-            local.get $i
-            i32.const 0
-            i32.eq
-            if
-              i32.const 16
-              global.set $player_x
-              i32.const 16 
-              global.set $player_y
-            end
-
-            local.get $i
-            i32.const 1
-            i32.eq
-            if
-              i32.const 288
-              global.set $player_x
-              i32.const 288
-              global.set $player_y
-            end
-
-            local.get $i
-            i32.const 2
-            i32.eq
-            if
-              i32.const 152
-              global.set $player_x
-              i32.const 152 
-              global.set $player_y
-            end
-
-            local.get $i
-            i32.const 3
-            i32.eq
-            if
-              i32.const 16
-              global.set $player_x
-              i32.const 16 
-              global.set $player_y
-            end
-
-            local.get $i
-            i32.const 4
-            i32.eq
-            if
-              i32.const 16
-              global.set $player_x
-              i32.const 16 
-              global.set $player_y
-            end
-
-            local.get $i
-            i32.const 5
-            i32.eq
-            if
-              i32.const 16
-              global.set $player_x
-              i32.const 272 
-              global.set $player_y
-            end
-
-            local.get $i
-            i32.const 6
-            i32.eq
-            if
-              i32.const 16
-              global.set $player_x
-              i32.const 16 
-              global.set $player_y
-            end
-
-            local.get $i
-            i32.const 7
-            i32.eq
-            if
-              i32.const 16
-              global.set $player_x
-              i32.const 16 
-              global.set $player_y
-            end
-
             local.get $i
             i32.const 8
             i32.eq
-            if
-              i32.const 16
-              global.set $player_x
-              i32.const 16 
-              global.set $player_y
+            if ;; TODO make maze_maker_scene
+              i32.const 3
+              global.set $scene_index
+            else
+              ;; normal modes
+              i32.const 1
+              global.set $maze_init
+          
+              local.get $i
+              global.set $maze_index ;; set the maze index
+              i32.const 1
+              global.set $maze_selected
+
+              ;; Check to see if player is lucky
+              global.get $timer_60
+              i32.const 56 ;; player will have a 5% chance to be lucky
+              i32.ge_s
+              if
+                i32.const 1
+                global.set $player_lucky
+              else
+                i32.const 0
+                global.set $player_lucky
+              end
+
+              ;; TODO: set player x and y depending on maze
+              local.get $i
+              i32.const 0
+              i32.eq
+              if
+                i32.const 16
+                global.set $player_x
+                i32.const 16 
+                global.set $player_y
+              end
+
+              local.get $i
+              i32.const 1
+              i32.eq
+              if
+                i32.const 288
+                global.set $player_x
+                i32.const 288
+                global.set $player_y
+              end
+
+              local.get $i
+              i32.const 2
+              i32.eq
+              if
+                i32.const 152
+                global.set $player_x
+                i32.const 152 
+                global.set $player_y
+              end
+
+              local.get $i
+              i32.const 3
+              i32.eq
+              if
+                i32.const 16
+                global.set $player_x
+                i32.const 16 
+                global.set $player_y
+              end
+
+              local.get $i
+              i32.const 4
+              i32.eq
+              if
+                i32.const 16
+                global.set $player_x
+                i32.const 16 
+                global.set $player_y
+              end
+
+              local.get $i
+              i32.const 5
+              i32.eq
+              if
+                i32.const 16
+                global.set $player_x
+                i32.const 272 
+                global.set $player_y
+              end
+
+              local.get $i
+              i32.const 6
+              i32.eq
+              if
+                i32.const 16
+                global.set $player_x
+                i32.const 16 
+                global.set $player_y
+              end
+
+              local.get $i
+              i32.const 7
+              i32.eq
+              if
+                i32.const 16
+                global.set $player_x
+                i32.const 16 
+                global.set $player_y
+              end
             end
           end
+
           ;; increment by 1
           local.get $i
           i32.const 1
@@ -1700,6 +1700,14 @@
     end
   )
 
+  (func $maze_maker_scene
+    ;; TODO: Write logic for this scene
+    i32.const 0x20
+    i32.const 0x20
+    i32.const 0x20
+    call $rgb_fill_screen
+  )
+
   ;; game loop
   (func (export "render_frame")  
     global.get $scene_index
@@ -1719,6 +1727,12 @@
 	i32.eq
 	if
       call $game_scene
+	end
+    global.get $scene_index
+	i32.const 3
+	i32.eq
+	if
+      call $maze_maker_scene
 	end
     ;; render pointer
     global.get $timer_30
