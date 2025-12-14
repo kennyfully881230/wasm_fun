@@ -24,307 +24,7 @@
   (global $timer_cooldown_15             (mut i32) (i32.const 0   )) ;; used for limiting repeating sounds
   (global $title_image_loaded            (mut i32) (i32.const 0   )) ;; check to see if title image loaded
 
-  (func $sound_switcher_3
-    global.get $timer_30
-    i32.const 9
-    i32.lt_s
-    if
-      global.get $timer_cooldown_15
-      i32.const 0
-      i32.eq
-      if
-        i32.const 9
-        global.set $timer_cooldown_15
-        i32.const 144923
-        i32.load16_u
-        call $play_data_sound
-      end
-    else
-      global.get $timer_30
-      i32.const 19
-      i32.lt_s
-      if
-        global.get $timer_cooldown_15
-        i32.const 0
-        i32.eq
-        if
-          i32.const 9
-          global.set $timer_cooldown_15
-          i32.const 144925
-          i32.load16_u
-          call $play_data_sound
-        end
-      else
-        global.get $timer_cooldown_15
-        i32.const 0
-        i32.eq
-        if
-          i32.const 9
-          global.set $timer_cooldown_15
-          i32.const 144927
-          i32.load16_u
-          call $play_data_sound
-        end
-      end
-    end    
-  )
-
-  (func $render_wasm_block
-    (param $i i32)
-    (param $color_01 i32)
-    (param $color_02 i32)
-    (param $color_03 i32)
-    local.get $i         ;; wasm_block_dx
-    i32.const 20
-    i32.rem_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_x
-    i32.add
-    global.get $player_x
-    i32.sub
-    local.get $i         ;; wasm_block_dy
-    f32.convert_i32_s
-    i32.const 20
-    f32.convert_i32_s
-    f32.div
-    f32.floor
-    i32.trunc_f32_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_y
-    i32.add
-    global.get $player_y
-    i32.sub
-    i32.const 16         ;; wasm_block_dw
-    i32.const 16         ;; wasm_block_dh
-    local.get $color_01
-    local.get $color_02
-    local.get $color_03
-    i32.const 0x00000000 ;; color_04
-    i32.const 0x00000000 ;; color_05
-    i32.const 132352     ;; data_address
-    call $render_color_indexed_sprite
-  )
-
-  (func $render_sweet_rock
-    (param $i i32)
-    (param $color_01 i32)
-    (param $color_02 i32)
-    (param $color_03 i32)
-    (param $color_04 i32)
-    (param $color_05 i32)
-    local.get $i         ;; sweet_rock_dx
-    i32.const 20
-    i32.rem_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_x
-    i32.add
-    global.get $player_x
-    i32.sub
-    local.get $i         ;; sweet_rock_dy
-    f32.convert_i32_s
-    i32.const 20
-    f32.convert_i32_s
-    f32.div
-    f32.floor
-    i32.trunc_f32_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_y
-    i32.add
-    global.get $player_y
-    i32.sub
-    i32.const 16         ;; sweet_rock_dw
-    i32.const 16         ;; sweet_rock_dh
-    local.get $color_01
-    local.get $color_02
-    local.get $color_03
-    local.get $color_04 ;; color_04
-    local.get $color_05 ;; color_05
-    i32.const 129536    ;; data_address
-    call $render_color_indexed_sprite
-  )
-
-  (func $render_key
-    (param $i i32)
-    (param $color_01 i32)
-    (param $color_02 i32)
-    (param $color_03 i32)
-    local.get $i         ;; key_dx
-    i32.const 20
-    i32.rem_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_x
-    i32.add
-    global.get $player_x
-    i32.sub
-    local.get $i         ;; key_dy
-    f32.convert_i32_s
-    i32.const 20
-    f32.convert_i32_s
-    f32.div
-    f32.floor
-    i32.trunc_f32_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_y
-    i32.add
-    global.get $player_y
-    i32.sub
-    i32.const 16         ;; key_dw
-    i32.const 16         ;; key_dh
-    local.get $color_01
-    local.get $color_02
-    local.get $color_03
-    i32.const 0x00000000 ;; color_04
-    i32.const 0x00000000  ;; color_05
-    i32.const 132608   ;; data_address
-    call $render_color_indexed_sprite
-  )
-
-  (func $render_lock
-    (param $i i32)
-    (param $color_01 i32)
-    (param $color_02 i32)
-    (param $color_03 i32)
-    local.get $i         ;; key_red_dx
-    i32.const 20
-    i32.rem_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_x
-    i32.add
-    global.get $player_x
-    i32.sub
-    local.get $i         ;; key_red_dy
-    f32.convert_i32_s
-    i32.const 20
-    f32.convert_i32_s
-    f32.div
-    f32.floor
-    i32.trunc_f32_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_y
-    i32.add
-    global.get $player_y
-    i32.sub
-    i32.const 16         ;; key_red_dw
-    i32.const 16         ;; key_red_dh
-    local.get $color_01
-    local.get $color_02
-    local.get $color_03
-    i32.const 0x00000000  ;; color_04
-    i32.const 0x00000000  ;; color_05
-    i32.const 132864      ;; data_address
-    call $render_color_indexed_sprite
-  )
-
-  (func $rgb_color_mix
-    (param $red i32)
-    (param $green i32)
-    (param $blue i32)
-    (result i32)
-    i32.const 144745
-    local.get $red
-    i32.store8
-    i32.const 144746
-    local.get $green
-    i32.store8
-    i32.const 144747
-    local.get $blue
-    i32.store8
-    i32.const 144748
-    i32.const 0xFF
-    i32.store8
-    i32.const 144745
-    i32.load
-  )
-
-  (func $rgb_fill_screen
-    (param $red i32)
-    (param $green i32)
-    (param $blue i32)
-    (local $i i32)
-
-    i32.const 0
-    local.set $i
-
-    loop $loop      
-      local.get $i
-      i32.const 4
-      i32.mul
-      local.get $red
-      i32.store8
-
-      local.get $i
-      i32.const 4
-      i32.mul
-      i32.const 1
-      i32.add
-      local.get $green
-      i32.store8
-
-      local.get $i
-      i32.const 4
-      i32.mul
-      i32.const 2
-      i32.add
-      local.get $blue
-      i32.store8
-
-      local.get $i
-      i32.const 4
-      i32.mul
-      i32.const 3
-      i32.add
-      i32.const 0xFF ;; ALPHA
-      i32.store8
-
-      local.get $i
-      i32.const 1
-      i32.add
-      local.set $i
-      local.get $i
-      i32.const 25600
-      i32.lt_s
-      br_if $loop
-    end
-  )
-
-  (func $player_to_object_collision (param $i i32) (result i32)
-    global.get $player_x
-    i32.const 3
-    i32.add
-    global.get $player_y
-    i32.const 6
-    i32.add
-    i32.const 10 ;; player_hitbox_size
-    ;; object_x
-    local.get $i
-    i32.const 20
-    i32.rem_s
-    i32.const 16
-    i32.mul
-    ;; object_y
-    local.get $i
-    f32.convert_i32_s
-    i32.const 20
-    f32.convert_i32_s
-    f32.div
-    f32.floor
-    i32.trunc_f32_s
-    i32.const 16
-    i32.mul
-    ;; object_size
-    i32.const 16
-    call $square_collision
-    i32.const 1 ;; check for true
-    i32.eq
-  )
+  ;; functions
 
   (func $check_item_on_map (param $i i32) (param $item_index i32) (result i32)
     i32.const 400
@@ -337,6 +37,21 @@
     i32.load8_u
     local.get $item_index
     i32.eq
+  )
+
+  (func $check_for_lucky (result i32 i32 i32)
+    global.get $player_lucky
+    i32.const 1
+    i32.eq
+    if
+      i32.const 0xFF000080
+      i32.const 0xFF0000FF
+      i32.const 0xFF00FFFF
+      return
+    end
+    i32.const 0xFF000000
+    i32.const 0xFFF04F65
+    i32.const 0xFFFFFFFF
   )
   
   (func $collision_checks (local $i i32)
@@ -749,60 +464,282 @@
       br_if $loop
     end
   )
+  
+  (func $player_to_object_collision (param $i i32) (result i32)
+    global.get $player_x
+    i32.const 3
+    i32.add
+    global.get $player_y
+    i32.const 6
+    i32.add
+    i32.const 10 ;; player_hitbox_size
+    local.get $i
+    i32.const 20
+    i32.rem_s
+    i32.const 16
+    i32.mul       ;; object_x
+    local.get $i
+    f32.convert_i32_s
+    i32.const 20
+    f32.convert_i32_s
+    f32.div
+    f32.floor
+    i32.trunc_f32_s
+    i32.const 16
+    i32.mul     ;; object_y
+    i32.const 16 ;; object_size
+    call $square_collision
+    i32.const 1 ;; check for true
+    i32.eq
+  )
 
-  (func $square_collision
-    (param $x1 i32) (param $y1 i32) (param $size1 i32) 
-    (param $x2 i32) (param $y2 i32) (param $size2 i32) 
-    (result i32)
-    (local $x1_end i32) (local $y1_end i32) 
-    (local $x2_end i32) (local $y2_end i32)
-    
-    ;; calculate the right/bottom edges of both squares
-    local.get $x1
-    local.get $size1
-    i32.add
-    local.set $x1_end
-    
-    local.get $y1
-    local.get $size1
-    i32.add
-    local.set $y1_end
-    
-    local.get $x2
-    local.get $size2
-    i32.add
-    local.set $x2_end
-    
-    local.get $y2
-    local.get $size2
-    i32.add
-    local.set $y2_end
-    
-    ;; check collision using AABB
-    ;; if (x1 < x2_end && x1_end > x2 && y1 < y2_end && y1_end > y2)
-    local.get $x1
-    local.get $x2_end
-    i32.lt_s
-    if
-      local.get $x1_end
-      local.get $x2
-      i32.gt_s
-      if
-        local.get $y1
-        local.get $y2_end
-        i32.lt_s
+  ;; render a sprite based on index colors
+  (func $render_color_indexed_sprite
+    (param $dx i32)
+    (param $dy i32)
+    (param $dw i32)
+    (param $dh i32)
+    (param $color_01 i32)
+    (param $color_02 i32)
+    (param $color_03 i32)
+    (param $color_04 i32)
+    (param $color_05 i32)
+    (param $data_address i32)
+    (local $i i32)
+    (local $j i32)
+    (local $color_index i32)
+    ;; for some reason init local variables to avoid rare bugs
+    i32.const 0
+    local.set $i
+    i32.const 0
+    local.set $j
+    i32.const 0
+    local.set $color_index
+    loop $loop_y
+      i32.const 0
+      local.set $j
+      loop $loop_x
+        ;; Check bounds - y first
+        local.get $dy
+        local.get $i
+        i32.add
+        i32.const 0
+        i32.ge_s
         if
-          local.get $y1_end
-          local.get $y2
-          i32.gt_s
+          local.get $dy
+          local.get $i
+          i32.add
+          i32.const 160 ;; gamebox_height
+          i32.lt_s
           if
-            i32.const 1
-            return
+            ;; Check x bounds
+            local.get $dx
+            local.get $j
+            i32.add
+            i32.const 0
+            i32.ge_s
+            if
+              local.get $dx
+              local.get $j
+              i32.add
+              i32.const 160 ;; gamebox_width
+              i32.lt_s
+              if
+                ;; Get sprite data: i * dw + j
+                local.get $i
+                local.get $dw
+                i32.mul
+                local.get $j
+                i32.add
+                local.get $data_address
+                i32.add
+                i32.load8_u
+                i32.const 0
+                i32.ne
+                if
+                  local.get $i
+                  local.get $dw
+                  i32.mul
+                  local.get $j
+                  i32.add
+                  local.get $data_address
+                  i32.add
+                  i32.load8_u
+                  i32.const 1
+                  i32.eq
+                  if
+                    local.get $color_01
+                    local.set $color_index
+                  end
+                  local.get $i
+                  local.get $dw
+                  i32.mul
+                  local.get $j
+                  i32.add
+                  local.get $data_address
+                  i32.add
+                  i32.load8_u
+                  i32.const 2
+                  i32.eq
+                  if
+                    local.get $color_02
+                    local.set $color_index
+                  end
+                  local.get $i
+                  local.get $dw
+                  i32.mul
+                  local.get $j
+                  i32.add
+                  local.get $data_address
+                  i32.add
+                  i32.load8_u
+                  i32.const 3
+                  i32.eq
+                  if
+                    local.get $color_03
+                    local.set $color_index
+                  end
+                  local.get $i
+                  local.get $dw
+                  i32.mul
+                  local.get $j
+                  i32.add
+                  local.get $data_address
+                  i32.add
+                  i32.load8_u
+                  i32.const 4
+                  i32.eq
+                  if
+                    local.get $color_04
+                    local.set $color_index
+                  end
+                  local.get $i
+                  local.get $dw
+                  i32.mul
+                  local.get $j
+                  i32.add
+                  local.get $data_address
+                  i32.add
+                  i32.load8_u
+                  i32.const 5
+                  i32.eq
+                  if
+                    local.get $color_05
+                    local.set $color_index
+                  end
+                  ;; Calculate pixel buffer offset: (dy+i) * width + (dx+j)
+                  local.get $dy
+                  local.get $i
+                  i32.add
+                  i32.const 160 ;; gamebox_width
+                  i32.mul
+                  local.get $dx
+                  local.get $j
+                  i32.add
+                  i32.add
+                  i32.const 4
+                  i32.mul
+                  local.get $color_index
+                  i32.store
+                end
+              end
+            end
           end
         end
+        local.get $j
+        i32.const 1
+        i32.add
+        local.set $j
+        local.get $j
+        local.get $dw
+        i32.lt_s
+        br_if $loop_x
       end
+      local.get $i
+      i32.const 1
+      i32.add
+      local.set $i
+      local.get $i
+      local.get $dh
+      i32.lt_s
+      br_if $loop_y
     end
-    i32.const 0
+  )
+
+  (func $render_key
+    (param $i i32)
+    (param $color_01 i32)
+    (param $color_02 i32)
+    (param $color_03 i32)
+    local.get $i         ;; key_dx
+    i32.const 20
+    i32.rem_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_x
+    i32.add
+    global.get $player_x
+    i32.sub
+    local.get $i         ;; key_dy
+    f32.convert_i32_s
+    i32.const 20
+    f32.convert_i32_s
+    f32.div
+    f32.floor
+    i32.trunc_f32_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_y
+    i32.add
+    global.get $player_y
+    i32.sub
+    i32.const 16         ;; key_dw
+    i32.const 16         ;; key_dh
+    local.get $color_01
+    local.get $color_02
+    local.get $color_03
+    i32.const 0x00000000 ;; color_04
+    i32.const 0x00000000  ;; color_05
+    i32.const 132608   ;; data_address
+    call $render_color_indexed_sprite
+  )
+
+  (func $render_lock
+    (param $i i32)
+    (param $color_01 i32)
+    (param $color_02 i32)
+    (param $color_03 i32)
+    local.get $i         ;; key_red_dx
+    i32.const 20
+    i32.rem_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_x
+    i32.add
+    global.get $player_x
+    i32.sub
+    local.get $i         ;; key_red_dy
+    f32.convert_i32_s
+    i32.const 20
+    f32.convert_i32_s
+    f32.div
+    f32.floor
+    i32.trunc_f32_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_y
+    i32.add
+    global.get $player_y
+    i32.sub
+    i32.const 16         ;; key_red_dw
+    i32.const 16         ;; key_red_dh
+    local.get $color_01
+    local.get $color_02
+    local.get $color_03
+    i32.const 0x00000000  ;; color_04
+    i32.const 0x00000000  ;; color_05
+    i32.const 132864      ;; data_address
+    call $render_color_indexed_sprite
   )
 
   ;; render map
@@ -1000,21 +937,6 @@
     end
   )
 
-  (func $check_for_lucky (result i32 i32 i32)
-    global.get $player_lucky
-    i32.const 1
-    i32.eq
-    if
-      i32.const 0xFF000080
-      i32.const 0xFF0000FF
-      i32.const 0xFF00FFFF
-      return
-    end
-    i32.const 0xFF000000
-    i32.const 0xFFF04F65
-    i32.const 0xFFFFFFFF
-  )
-  
   (func $render_player
     global.get $timer_30
     i32.const 14
@@ -1050,190 +972,211 @@
     end
   )
 
-  ;; render a sprite based on index colors
-  (func $render_color_indexed_sprite
-    (param $dx i32)
-    (param $dy i32)
-    (param $dw i32)
-    (param $dh i32)
+  (func $render_sweet_rock
+    (param $i i32)
     (param $color_01 i32)
     (param $color_02 i32)
     (param $color_03 i32)
     (param $color_04 i32)
     (param $color_05 i32)
-    (param $data_address i32)
-    (local $i i32)
-    (local $j i32)
-    (local $color_index i32)
+    local.get $i         ;; sweet_rock_dx
+    i32.const 20
+    i32.rem_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_x
+    i32.add
+    global.get $player_x
+    i32.sub
+    local.get $i         ;; sweet_rock_dy
+    f32.convert_i32_s
+    i32.const 20
+    f32.convert_i32_s
+    f32.div
+    f32.floor
+    i32.trunc_f32_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_y
+    i32.add
+    global.get $player_y
+    i32.sub
+    i32.const 16         ;; sweet_rock_dw
+    i32.const 16         ;; sweet_rock_dh
+    local.get $color_01
+    local.get $color_02
+    local.get $color_03
+    local.get $color_04 ;; color_04
+    local.get $color_05 ;; color_05
+    i32.const 129536    ;; data_address
+    call $render_color_indexed_sprite
+  )
 
-    ;; for some reason init local variables to avoid rare bugs
+  (func $render_wasm_block
+    (param $i i32)
+    (param $color_01 i32)
+    (param $color_02 i32)
+    (param $color_03 i32)
+    local.get $i         ;; wasm_block_dx
+    i32.const 20
+    i32.rem_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_x
+    i32.add
+    global.get $player_x
+    i32.sub
+    local.get $i         ;; wasm_block_dy
+    f32.convert_i32_s
+    i32.const 20
+    f32.convert_i32_s
+    f32.div
+    f32.floor
+    i32.trunc_f32_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_y
+    i32.add
+    global.get $player_y
+    i32.sub
+    i32.const 16         ;; wasm_block_dw
+    i32.const 16         ;; wasm_block_dh
+    local.get $color_01
+    local.get $color_02
+    local.get $color_03
+    i32.const 0x00000000 ;; color_04
+    i32.const 0x00000000 ;; color_05
+    i32.const 132352     ;; data_address
+    call $render_color_indexed_sprite
+  )
+
+  (func $rgb_color_mix
+    (param $red i32)
+    (param $green i32)
+    (param $blue i32)
+    (result i32)
+    i32.const 144745
+    local.get $red
+    i32.store8
+    i32.const 144746
+    local.get $green
+    i32.store8
+    i32.const 144747
+    local.get $blue
+    i32.store8
+    i32.const 144748
+    i32.const 0xFF
+    i32.store8
+    i32.const 144745
+    i32.load
+  )
+
+  ;; todo: rewrite this function
+  (func $rgb_fill_screen
+    (param $red i32)
+    (param $green i32)
+    (param $blue i32)
+    (local $i i32)
+
     i32.const 0
     local.set $i
-    i32.const 0
-    local.set $j
-    i32.const 0
-    local.set $color_index
-  
-    loop $loop_y
-      i32.const 0
-      local.set $j
-    
-      loop $loop_x
-        ;; Check bounds - y first
-        local.get $dy
-        local.get $i
-        i32.add
-        i32.const 0
-        i32.ge_s
-        if
-          local.get $dy
-          local.get $i
-          i32.add
-          i32.const 160 ;; gamebox_height
-          i32.lt_s
-          if
-            ;; Check x bounds
-            local.get $dx
-            local.get $j
-            i32.add
-            i32.const 0
-            i32.ge_s
-            if
-              local.get $dx
-              local.get $j
-              i32.add
-              i32.const 160 ;; gamebox_width
-              i32.lt_s
-              if
-                ;; Get sprite data: i * dw + j
-                local.get $i
-                local.get $dw
-                i32.mul
-                local.get $j
-                i32.add
-                local.get $data_address
-                i32.add
-                i32.load8_u
-              
-                i32.const 0
-                i32.ne
-                if
-                  local.get $i
-                  local.get $dw
-                  i32.mul
-                  local.get $j
-                  i32.add
-                  local.get $data_address
-                  i32.add
-                  i32.load8_u
-                  i32.const 1
-                  i32.eq
-                  if
-                    local.get $color_01
-                    local.set $color_index
-                  end
 
-                  local.get $i
-                  local.get $dw
-                  i32.mul
-                  local.get $j
-                  i32.add
-                  local.get $data_address
-                  i32.add
-                  i32.load8_u
-                  i32.const 2
-                  i32.eq
-                  if
-                    local.get $color_02
-                    local.set $color_index
-                  end
+    loop $loop      
+      local.get $i
+      i32.const 4
+      i32.mul
+      local.get $red
+      i32.store8
 
-                  local.get $i
-                  local.get $dw
-                  i32.mul
-                  local.get $j
-                  i32.add
-                  local.get $data_address
-                  i32.add
-                  i32.load8_u
-                  i32.const 3
-                  i32.eq
-                  if
-                    local.get $color_03
-                    local.set $color_index
-                  end
+      local.get $i
+      i32.const 4
+      i32.mul
+      i32.const 1
+      i32.add
+      local.get $green
+      i32.store8
 
-                  local.get $i
-                  local.get $dw
-                  i32.mul
-                  local.get $j
-                  i32.add
-                  local.get $data_address
-                  i32.add
-                  i32.load8_u
-                  i32.const 4
-                  i32.eq
-                  if
-                    local.get $color_04
-                    local.set $color_index
-                  end
+      local.get $i
+      i32.const 4
+      i32.mul
+      i32.const 2
+      i32.add
+      local.get $blue
+      i32.store8
 
-                  local.get $i
-                  local.get $dw
-                  i32.mul
-                  local.get $j
-                  i32.add
-                  local.get $data_address
-                  i32.add
-                  i32.load8_u
-                  i32.const 5
-                  i32.eq
-                  if
-                    local.get $color_05
-                    local.set $color_index
-                  end
+      local.get $i
+      i32.const 4
+      i32.mul
+      i32.const 3
+      i32.add
+      i32.const 0xFF ;; ALPHA
+      i32.store8
 
-                  ;; Calculate pixel buffer offset: (dy+i) * width + (dx+j)
-                  local.get $dy
-                  local.get $i
-                  i32.add
-                  i32.const 160 ;; gamebox_width
-                  i32.mul
-                  local.get $dx
-                  local.get $j
-                  i32.add
-                  i32.add
-                  i32.const 4
-                  i32.mul
-                  
-                  local.get $color_index
-                  i32.store
-                end
-              end
-            end
-          end
-        end
-      
-        local.get $j
-        i32.const 1
-        i32.add
-        local.set $j
-        local.get $j
-        local.get $dw
-        i32.lt_s
-        br_if $loop_x
-      end
-    
       local.get $i
       i32.const 1
       i32.add
       local.set $i
       local.get $i
-      local.get $dh
+      i32.const 25600
       i32.lt_s
-      br_if $loop_y
+      br_if $loop
     end
-  )
+  )  
+  
+  (func $square_collision
+    (param $x1 i32) (param $y1 i32) (param $size1 i32) 
+    (param $x2 i32) (param $y2 i32) (param $size2 i32) 
+    (result i32)
+    (local $x1_end i32) (local $y1_end i32) 
+    (local $x2_end i32) (local $y2_end i32)
+    
+    ;; calculate the right/bottom edges of both squares
+    local.get $x1
+    local.get $size1
+    i32.add
+    local.set $x1_end
+    
+    local.get $y1
+    local.get $size1
+    i32.add
+    local.set $y1_end
+    
+    local.get $x2
+    local.get $size2
+    i32.add
+    local.set $x2_end
+    
+    local.get $y2
+    local.get $size2
+    i32.add
+    local.set $y2_end
+    
+    ;; check collision using AABB
+    ;; if (x1 < x2_end && x1_end > x2 && y1 < y2_end && y1_end > y2)
+    local.get $x1
+    local.get $x2_end
+    i32.lt_s
+    if
+      local.get $x1_end
+      local.get $x2
+      i32.gt_s
+      if
+        local.get $y1
+        local.get $y2_end
+        i32.lt_s
+        if
+          local.get $y1_end
+          local.get $y2
+          i32.gt_s
+          if
+            i32.const 1
+            return
+          end
+        end
+      end
+    end
+    i32.const 0
+  )  
 
   ;; game loop
   (func (export "game_loop")  
@@ -1712,7 +1655,49 @@
       i32.const 0x00000000   ;; color_05
       i32.const 138752       ;; data_address
       call $render_color_indexed_sprite
-      call $sound_switcher_3
+      ;; 3 sound switcher
+      global.get $timer_30
+      i32.const 9
+      i32.lt_s
+      if
+        global.get $timer_cooldown_15
+        i32.const 0
+        i32.eq
+        if
+          i32.const 9
+          global.set $timer_cooldown_15
+          i32.const 144923
+          i32.load16_u
+          call $play_data_sound
+        end
+      else
+        global.get $timer_30
+        i32.const 19
+        i32.lt_s
+        if
+          global.get $timer_cooldown_15
+          i32.const 0
+          i32.eq
+          if
+            i32.const 9
+            global.set $timer_cooldown_15
+            i32.const 144925
+            i32.load16_u
+            call $play_data_sound
+          end
+        else
+          global.get $timer_cooldown_15
+          i32.const 0
+          i32.eq
+          if
+            i32.const 9
+            global.set $timer_cooldown_15
+            i32.const 144927
+            i32.load16_u
+            call $play_data_sound
+          end
+        end
+      end    
       ;; increment $countup if less than 179
       global.get $countup
       i32.const 179
