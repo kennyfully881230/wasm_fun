@@ -24,35 +24,6 @@
   (global $timer_cooldown_15             (mut i32) (i32.const 0   )) ;; used for limiting repeating sounds
   (global $title_image_loaded            (mut i32) (i32.const 0   )) ;; check to see if title image loaded
 
-  (func $color_switcher (param $color_01 i32) (param $color_02 i32) (result i32)
-    global.get $timer_60
-    i32.const 29
-    i32.lt_s
-    if
-      local.get $color_01
-      return
-    end
-    local.get $color_02
-  )
-
-  (func $color_switcher_3 (param $color_01 i32) (param $color_02 i32) (param $color_03 i32) (result i32)
-    global.get $timer_30
-    i32.const 9
-    i32.lt_s
-    if
-      local.get $color_01
-      return
-    end
-    global.get $timer_30
-    i32.const 19
-    i32.lt_s
-    if
-      local.get $color_02
-      return
-    end
-    local.get $color_03
-  )
-
   (func $sound_switcher_3
     global.get $timer_30
     i32.const 9
@@ -723,8 +694,15 @@
         i32.const 0xFF000000     ;; color_01
         i32.const 0xFFF5F5FF        
         i32.const 0xFFF7F7FF
+        global.get $timer_30
+        i32.const 9
+        i32.lt_s
+        select
         i32.const 0xFFFFFFFF
-        call $color_switcher_3   ;; color_02
+        global.get $timer_30
+        i32.const 19
+        i32.lt_s
+        select ;; color_02
         i32.const 144749
         i32.load8_u
         i32.const 0x00
@@ -749,7 +727,10 @@
         local.get $i
         i32.const 0xFFFF0000
         i32.const 0xFFF04F65
-        call $color_switcher ;; color_01
+        global.get $timer_60
+        i32.const 29
+        i32.lt_s
+        select ;; color_01
         i32.const 0xFFFFFFFF ;; color_02
         i32.const 0x00000000 ;; color_03
         call $render_wasm_block
@@ -769,7 +750,10 @@
         local.get $i
         i32.const 0xFF0000FF
         i32.const 0xFF000080
-        call $color_switcher ;; color_01
+        global.get $timer_60
+        i32.const 29
+        i32.lt_s
+        select ;; color_01
         i32.const 0xFFFFFFFF ;; color_02
         i32.const 0x00000000 ;; color_03
         call $render_key
@@ -789,7 +773,10 @@
         local.get $i
         i32.const 0xFF00FF00
         i32.const 0xFF008000
-        call $color_switcher ;; color_01
+        global.get $timer_60
+        i32.const 29
+        i32.lt_s
+        select ;; color_01
         i32.const 0xFFFFFFFF ;; color_02
         i32.const 0x00000000 ;; color_03
         call $render_key
@@ -809,7 +796,10 @@
         local.get $i
         i32.const 0xFFFF0000
         i32.const 0xFF800000
-        call $color_switcher ;; color_01
+        global.get $timer_60
+        i32.const 29
+        i32.lt_s
+        select ;; color_01
         i32.const 0xFFFFFFFF ;; color_02
         i32.const 0x00000000 ;; color_03
         call $render_key
@@ -1577,8 +1567,15 @@
       i32.const 32      ;; dh
       i32.const 0xFF000080
       i32.const 0xFF008000
+      global.get $timer_30
+      i32.const 9
+      i32.lt_s
+      select
       i32.const 0xFF800000
-      call $color_switcher_3 ;; color_01
+      global.get $timer_30
+      i32.const 19
+      i32.lt_s
+      select ;; color_01
       i32.const 0xFF0000FF   ;; color_02
       i32.const 0xFFFF0000   ;; color_03
       i32.const 0x00000000   ;; color_04
