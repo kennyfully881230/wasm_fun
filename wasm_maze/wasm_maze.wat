@@ -98,47 +98,6 @@
     end    
   )
 
-  ;; calculate a tile's X-position on the grid (column * tile_size)
-  (func $get_tile_map_x (param $i i32) (result i32)
-    local.get $i
-    i32.const 20
-    i32.rem_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_x
-    i32.add
-    global.get $player_x
-    i32.sub
-  )
-
-  ;; calculate a tile's Y-position on the grid (row * tile_size)
-  (func $get_tile_map_y (param $i i32) (result i32)
-    local.get $i
-    f32.convert_i32_s
-    i32.const 20
-    f32.convert_i32_s
-    f32.div
-    f32.floor
-    i32.trunc_f32_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_y
-    i32.add
-    global.get $player_y
-    i32.sub
-  )
-
-  ;; calculates the absolute memory address of the tile data at index $i
-  (func $get_tile_data_address (param $i i32) (result i32)
-    i32.const 400
-    global.get $maze_index
-    i32.mul
-    i32.const 141321   
-    i32.add
-    local.get $i
-    i32.add
-  )
-
   (func $pushback_player
     global.get $timer_cooldown_15
     i32.const 0
@@ -198,9 +157,27 @@
     (param $color_02 i32)
     (param $color_03 i32)
     local.get $i         ;; wasm_block_dx
-    call $get_tile_map_x
+    i32.const 20
+    i32.rem_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_x
+    i32.add
+    global.get $player_x
+    i32.sub
     local.get $i         ;; wasm_block_dy
-    call $get_tile_map_y
+    f32.convert_i32_s
+    i32.const 20
+    f32.convert_i32_s
+    f32.div
+    f32.floor
+    i32.trunc_f32_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_y
+    i32.add
+    global.get $player_y
+    i32.sub
     i32.const 16         ;; wasm_block_dw
     i32.const 16         ;; wasm_block_dh
     local.get $color_01
@@ -220,9 +197,27 @@
     (param $color_04 i32)
     (param $color_05 i32)
     local.get $i         ;; sweet_rock_dx
-    call $get_tile_map_x
+    i32.const 20
+    i32.rem_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_x
+    i32.add
+    global.get $player_x
+    i32.sub
     local.get $i         ;; sweet_rock_dy
-    call $get_tile_map_y
+    f32.convert_i32_s
+    i32.const 20
+    f32.convert_i32_s
+    f32.div
+    f32.floor
+    i32.trunc_f32_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_y
+    i32.add
+    global.get $player_y
+    i32.sub
     i32.const 16         ;; sweet_rock_dw
     i32.const 16         ;; sweet_rock_dh
     local.get $color_01
@@ -240,9 +235,27 @@
     (param $color_02 i32)
     (param $color_03 i32)
     local.get $i         ;; key_dx
-    call $get_tile_map_x
+    i32.const 20
+    i32.rem_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_x
+    i32.add
+    global.get $player_x
+    i32.sub
     local.get $i         ;; key_dy
-    call $get_tile_map_y
+    f32.convert_i32_s
+    i32.const 20
+    f32.convert_i32_s
+    f32.div
+    f32.floor
+    i32.trunc_f32_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_y
+    i32.add
+    global.get $player_y
+    i32.sub
     i32.const 16         ;; key_dw
     i32.const 16         ;; key_dh
     local.get $color_01
@@ -260,9 +273,27 @@
     (param $color_02 i32)
     (param $color_03 i32)
     local.get $i         ;; key_red_dx
-    call $get_tile_map_x
+    i32.const 20
+    i32.rem_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_x
+    i32.add
+    global.get $player_x
+    i32.sub
     local.get $i         ;; key_red_dy
-    call $get_tile_map_y
+    f32.convert_i32_s
+    i32.const 20
+    f32.convert_i32_s
+    f32.div
+    f32.floor
+    i32.trunc_f32_s
+    i32.const 16
+    i32.mul
+    i32.const 72 ;; cam_y
+    i32.add
+    global.get $player_y
+    i32.sub
     i32.const 16         ;; key_red_dw
     i32.const 16         ;; key_red_dh
     local.get $color_01
@@ -677,8 +708,13 @@
   (func $render_map (local $i i32)
     loop $loop
       ;; check for sweet_rock
+      i32.const 400
+      global.get $maze_index
+      i32.mul
+      i32.const 141321   
+      i32.add
       local.get $i
-      call $get_tile_data_address
+      i32.add
       i32.load8_u
       i32.const 1
       i32.eq
@@ -699,8 +735,13 @@
         call $render_sweet_rock
       end
       ;; check for wasm_block
+      i32.const 400
+      global.get $maze_index
+      i32.mul
+      i32.const 141321   
+      i32.add
       local.get $i
-      call $get_tile_data_address
+      i32.add
       i32.load8_u
       i32.const 2
       i32.eq
@@ -714,8 +755,13 @@
         call $render_wasm_block
       end
       ;; check for key_red
+      i32.const 400
+      global.get $maze_index
+      i32.mul
+      i32.const 141321   
+      i32.add
       local.get $i
-      call $get_tile_data_address
+      i32.add
       i32.load8_u
       i32.const 3
       i32.eq
@@ -729,8 +775,13 @@
         call $render_key
       end
       ;; check for key_green
+      i32.const 400
+      global.get $maze_index
+      i32.mul
+      i32.const 141321   
+      i32.add
       local.get $i
-      call $get_tile_data_address
+      i32.add
       i32.load8_u
       i32.const 4
       i32.eq
@@ -744,8 +795,13 @@
         call $render_key
       end
       ;; check for key_blue
+      i32.const 400
+      global.get $maze_index
+      i32.mul
+      i32.const 141321   
+      i32.add
       local.get $i
-      call $get_tile_data_address
+      i32.add
       i32.load8_u
       i32.const 5
       i32.eq
@@ -759,8 +815,13 @@
         call $render_key
       end
       ;; check for lock_red
+      i32.const 400
+      global.get $maze_index
+      i32.mul
+      i32.const 141321   
+      i32.add
       local.get $i
-      call $get_tile_data_address
+      i32.add
       i32.load8_u
       i32.const 6
       i32.eq
@@ -772,8 +833,13 @@
         call $render_lock
       end
       ;; check for lock_green
+      i32.const 400
+      global.get $maze_index
+      i32.mul
+      i32.const 141321   
+      i32.add
       local.get $i
-      call $get_tile_data_address
+      i32.add
       i32.load8_u
       i32.const 7
       i32.eq
@@ -785,8 +851,13 @@
         call $render_lock
       end
       ;; check for lock_blue
+      i32.const 400
+      global.get $maze_index
+      i32.mul
+      i32.const 141321   
+      i32.add
       local.get $i
-      call $get_tile_data_address
+      i32.add
       i32.load8_u
       i32.const 8
       i32.eq
