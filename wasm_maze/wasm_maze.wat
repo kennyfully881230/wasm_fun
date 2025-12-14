@@ -6,9 +6,6 @@
   (memory (export "memory") 3) ;; 196608 bytes
   ;; mutable variables
   (global $countup                       (mut i32) (i32.const 0   ))
-  (global $has_key_blue                  (mut i32) (i32.const 0   ))
-  (global $has_key_green                 (mut i32) (i32.const 0   ))
-  (global $has_key_red                   (mut i32) (i32.const 0   ))
   (global $maze_cleared                  (mut i32) (i32.const 0   ))
   (global $maze_index                    (mut i32) (i32.const 0   ))
   (global $maze_init                     (mut i32) (i32.const 0   ))
@@ -25,6 +22,21 @@
   (global $title_image_loaded            (mut i32) (i32.const 0   )) ;; check to see if title image loaded
 
   ;; functions
+   
+  (func $check_for_lucky (result i32 i32 i32)
+    global.get $player_lucky
+    i32.const 1
+    i32.eq
+    if
+      i32.const 0xFF000080
+      i32.const 0xFF0000FF
+      i32.const 0xFF00FFFF
+      return
+    end
+    i32.const 0xFF000000
+    i32.const 0xFFF04F65
+    i32.const 0xFFFFFFFF
+  )
 
   (func $check_item_on_map (param $i i32) (param $item_index i32) (result i32)
     i32.const 400
@@ -39,19 +51,69 @@
     i32.eq
   )
 
-  (func $check_for_lucky (result i32 i32 i32)
-    global.get $player_lucky
-    i32.const 1
-    i32.eq
+  (func $collision_check_key (param $color_index i32) (param $i i32)
+    local.get $i
+    call $player_to_object_collision
     if
-      i32.const 0xFF000080
-      i32.const 0xFF0000FF
-      i32.const 0xFF00FFFF
-      return
+      local.get $i
+      call $player_to_object_collision
+      if          
+        i32.const 144925
+        i32.load16_u
+        call $play_data_sound
+        i32.const 400
+        global.get $maze_index
+        i32.mul
+        i32.const 141321
+        i32.add
+        local.get $i
+        i32.add        
+        i32.const 0x09 ;; indicates key picked up
+        local.get $color_index
+        i32.add
+        i32.store8
+        ;; update key status
+        i32.const 144944
+        local.get $color_index
+        i32.add
+        i32.const 1
+        i32.store8
+      end
     end
-    i32.const 0xFF000000
-    i32.const 0xFFF04F65
-    i32.const 0xFFFFFFFF
+  )
+
+  (func $collision_check_lock (param $color_index i32) (param $i i32)
+    local.get $i
+    call $player_to_object_collision
+    if
+      i32.const 144944
+      local.get $color_index
+      i32.add
+      i32.load8_u
+      i32.const 1
+      i32.eq
+      if          
+        i32.const 144927
+        i32.load16_u
+        call $play_data_sound
+        i32.const 400
+        global.get $maze_index
+        i32.mul
+        i32.const 141321
+        i32.add
+        local.get $i
+        i32.add        
+        i32.const 0x0C ;; indicates unlocked
+        i32.store8
+        i32.const 144944
+        local.get $color_index
+        i32.add
+        i32.const 0
+        i32.store8
+      else
+        call $pushback_player
+      end
+    end
   )
   
   (func $collision_checks (local $i i32)
@@ -96,167 +158,54 @@
       i32.const 3
       call $check_item_on_map
       if
+        i32.const 0
         local.get $i
-        call $player_to_object_collision
-        if          
-          i32.const 144925
-          i32.load16_u
-          call $play_data_sound
-          i32.const 400
-          global.get $maze_index
-          i32.mul
-          i32.const 141321
-          i32.add
-          local.get $i
-          i32.add        
-          i32.const 0x09 ;; indicates key_red is picked up
-          i32.store8
-          i32.const 1
-          global.set $has_key_red
-        end
+        call $collision_check_key
       end
       ;; check if a key_green collides
       local.get $i
       i32.const 4
       call $check_item_on_map
       if
+        i32.const 1
         local.get $i
-        call $player_to_object_collision
-        if          
-          i32.const 144925
-          i32.load16_u
-          call $play_data_sound
-
-          i32.const 400
-          global.get $maze_index
-          i32.mul
-          i32.const 141321
-          i32.add
-          local.get $i
-          i32.add        
-          i32.const 0x0A ;; indicates key_green is picked up
-          i32.store8
-          i32.const 1
-          global.set $has_key_green
-        end
+        call $collision_check_key
       end
       ;; check if a key_blue collides
       local.get $i
       i32.const 5
       call $check_item_on_map
       if
+        i32.const 2
         local.get $i
-        call $player_to_object_collision
-        if          
-          i32.const 144925
-          i32.load16_u
-          call $play_data_sound
-
-          i32.const 400
-          global.get $maze_index
-          i32.mul
-          i32.const 141321
-          i32.add
-          local.get $i
-          i32.add        
-          i32.const 0x0B ;; indicates key_blue is picked up
-          i32.store8
-          i32.const 1
-          global.set $has_key_blue
-        end
+        call $collision_check_key
       end
       ;; check if a lock_red collides
       local.get $i
       i32.const 6
       call $check_item_on_map
       if
+        i32.const 0
         local.get $i
-        call $player_to_object_collision
-        if
-          global.get $has_key_red
-          i32.const 1
-          i32.eq
-          if          
-            i32.const 144927
-            i32.load16_u
-            call $play_data_sound
-            i32.const 400
-            global.get $maze_index
-            i32.mul
-            i32.const 141321
-            i32.add
-            local.get $i
-            i32.add        
-            i32.const 0x0C ;; indicates lock_red is unlocked
-            i32.store8
-            i32.const 0
-            global.set $has_key_red
-          else
-            call $pushback_player
-          end
-        end
+        call $collision_check_lock
       end
       ;; check if a lock_green collides
       local.get $i
       i32.const 7
       call $check_item_on_map
       if
+        i32.const 1
         local.get $i
-        call $player_to_object_collision
-        if
-          global.get $has_key_green
-          i32.const 1
-          i32.eq
-          if          
-            i32.const 144927
-            i32.load16_u
-            call $play_data_sound
-            i32.const 400
-            global.get $maze_index
-            i32.mul
-            i32.const 141321
-            i32.add
-            local.get $i
-            i32.add        
-            i32.const 0x0D ;; indicates lock_red is unlocked
-            i32.store8
-            i32.const 0
-            global.set $has_key_green
-          else
-            call $pushback_player
-          end
-        end
+        call $collision_check_lock
       end
       ;; check if a lock_blue collides
       local.get $i
       i32.const 8
       call $check_item_on_map
       if
+        i32.const 2
         local.get $i
-        call $player_to_object_collision
-        if
-          global.get $has_key_blue
-          i32.const 1
-          i32.eq
-          if          
-            i32.const 144927
-            i32.load16_u
-            call $play_data_sound
-            i32.const 400
-            global.get $maze_index
-            i32.mul
-            i32.const 141321
-            i32.add
-            local.get $i
-            i32.add        
-            i32.const 0x0E ;; indicates lock_red is unlocked
-            i32.store8
-            i32.const 0
-            global.set $has_key_blue
-          else
-            call $pushback_player
-          end
-        end
+        call $collision_check_lock
       end
       ;; increment i
       local.get $i
@@ -933,46 +882,43 @@
     (param $red i32)
     (param $green i32)
     (param $blue i32)
-    (local $i i32)
-
+    (local $i i32)       ;; Loop counter (pixel index)
+    (local $color i32)   ;; Pre-calculated 32-bit RGBA color
+    (local $offset i32)  ;; Memory offset
+    ;; 1. Pre-calculate the 32-bit RGBA color word
+    ;; Color format: 0xAABBGGRR (assuming little-endian memory)
+    ;; The function parameters (R, G, B) are i32s, but we treat them as bytes (i8s).
+    local.get $red        ;; Pushes R (i32)
+    local.get $green
+    i32.const 8
+    i32.shl             ;; G << 8
+    i32.or                ;; R | (G << 8) = GGRR
+    local.get $blue
+    i32.const 16
+    i32.shl             ;; B << 16
+    i32.or                ;; (GGRR) | (B << 16) = BBGGRR
+    i32.const 0xFF000000  ;; Alpha (0xFF << 24)
+    i32.or                ;; (BBGGRR) | (FF << 24) = AABBGGRR
+    local.set $color      ;; Store the final 32-bit color word
+    ;; Initialize loop counter
     i32.const 0
     local.set $i
-
-    loop $loop      
+    loop $loop
+      ;; Calculate memory offset: i * 4
       local.get $i
-      i32.const 4
-      i32.mul
-      local.get $red
-      i32.store8
-
-      local.get $i
-      i32.const 4
-      i32.mul
-      i32.const 1
-      i32.add
-      local.get $green
-      i32.store8
-
-      local.get $i
-      i32.const 4
-      i32.mul
       i32.const 2
-      i32.add
-      local.get $blue
-      i32.store8
-
-      local.get $i
-      i32.const 4
-      i32.mul
-      i32.const 3
-      i32.add
-      i32.const 0xFF ;; ALPHA
-      i32.store8
-
+      i32.shl             ;; i << 2 is equivalent to i * 4 (much faster)
+      local.set $offset
+      ;; Store the 32-bit color word at the calculated offset
+      local.get $offset
+      local.get $color
+      i32.store           ;; Store the entire 32-bit word (4 bytes) at once
+      ;; Increment loop counter
       local.get $i
       i32.const 1
       i32.add
       local.set $i
+      ;; Check loop condition (i < 25600)
       local.get $i
       i32.const 25600
       i32.lt_s
@@ -1580,7 +1526,8 @@
 
       call $render_map
       call $render_player
-      global.get $has_key_red
+      i32.const 144944
+      i32.load8_u
       i32.const 1
       i32.eq
       if
@@ -1597,7 +1544,8 @@
         call $render_color_indexed_sprite
       end
 
-      global.get $has_key_green
+      i32.const 144945
+      i32.load8_u
       i32.const 1
       i32.eq
       if
@@ -1614,7 +1562,8 @@
         call $render_color_indexed_sprite
       end
 
-      global.get $has_key_blue
+      i32.const 144946
+      i32.load8_u
       i32.const 1
       i32.eq
       if
@@ -2919,6 +2868,8 @@
     "\00"
     ;; 144942 | pointer_x and pointer_y = 2 bytes
     "\FF\FF"
+    ;; 144944 | key obtain status (red, green, blue) 
+    "\00\00\00"
   )
 )
 
