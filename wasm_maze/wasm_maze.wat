@@ -25,20 +25,6 @@
   (global $timer_60                      (mut i32) (i32.const 0   )) ;; 60 frame counter
   (global $timer_cooldown_15             (mut i32) (i32.const 0   )) ;; used for limiting repeating sounds
   (global $title_image_loaded            (mut i32) (i32.const 0   )) ;; check to see if title image loaded
-  ;; color format ABGR
-  (global $white                         i32 (i32.const 0xFFFFFFFF))
-  (global $red_light                     i32 (i32.const 0xFF3B3BFF))
-  (global $red                           i32 (i32.const 0xFF0000FF))
-  (global $red_dark                      i32 (i32.const 0xFF000080))
-  (global $yellow                        i32 (i32.const 0xFF00FFFF))
-  (global $yellow_dark                   i32 (i32.const 0xFF008080))
-  (global $green                         i32 (i32.const 0xFF00FF00))
-  (global $green_dark                    i32 (i32.const 0xFF008000))
-  (global $blue                          i32 (i32.const 0xFFFF0000))
-  (global $blue_dark                     i32 (i32.const 0xFF800000))
-  (global $wasm_blue                     i32 (i32.const 0xFFF04F65))
-  (global $black                         i32 (i32.const 0xFF000000))
-  (global $brown_light                   i32 (i32.const 0xFF9CE1FF))
 
   ;; mathmatic abs function
   (func $i32_abs (param $value i32) (result i32)
@@ -714,18 +700,18 @@
       i32.eq
       if
         local.get $i
-        global.get $black        ;; color_01
+        i32.const 0xFF000000     ;; color_01
         i32.const 0xFFF5F5FF        
-        i32.const 0xFFF7F7FF        
-        global.get $white        
+        i32.const 0xFFF7F7FF
+        i32.const 0xFFFFFFFF
         call $color_switcher_3   ;; color_02
         i32.const 144749
         i32.load8_u
         i32.const 0x00
         i32.const 0x00
-        call $rgb_color_mix      ;; color_03
-        global.get $wasm_blue    ;; color_04
-        global.get $brown_light  ;; color_05
+        call $rgb_color_mix     ;; color_03
+        i32.const 0xFFF04F65    ;; color_04
+        i32.const 0xFF9CE1FF    ;; color_05
         call $render_sweet_rock
       end
       ;; check for wasm_block
@@ -736,10 +722,10 @@
       i32.eq
       if
         local.get $i
-        global.get $blue
-        global.get $wasm_blue
+        i32.const 0xFFFF0000
+        i32.const 0xFFF04F65
         call $color_switcher ;; color_01
-        global.get $white    ;; color_02
+        i32.const 0xFFFFFFFF ;; color_02
         i32.const 0x00000000 ;; color_03
         call $render_wasm_block
       end
@@ -751,10 +737,10 @@
       i32.eq
       if
         local.get $i
-        global.get $red
-        global.get $red_dark
+        i32.const 0xFF0000FF
+        i32.const 0xFF000080
         call $color_switcher ;; color_01
-        global.get $white    ;; color_02
+        i32.const 0xFFFFFFFF ;; color_02
         i32.const 0x00000000 ;; color_03
         call $render_key
       end
@@ -766,10 +752,10 @@
       i32.eq
       if
         local.get $i
-        global.get $green
-        global.get $green_dark
+        i32.const 0xFF00FF00
+        i32.const 0xFF008000
         call $color_switcher ;; color_01
-        global.get $white    ;; color_02
+        i32.const 0xFFFFFFFF ;; color_02
         i32.const 0x00000000 ;; color_03
         call $render_key
       end
@@ -781,10 +767,10 @@
       i32.eq
       if
         local.get $i
-        global.get $blue
-        global.get $blue_dark
+        i32.const 0xFFFF0000
+        i32.const 0xFF800000
         call $color_switcher ;; color_01
-        global.get $white    ;; color_02
+        i32.const 0xFFFFFFFF ;; color_02
         i32.const 0x00000000 ;; color_03
         call $render_key
       end
@@ -796,8 +782,8 @@
       i32.eq
       if
         local.get $i
-        global.get $red      ;; color_01
-        global.get $yellow   ;; color_02
+        i32.const 0xFF0000FF ;; color_01
+        i32.const 0xFF00FFFF ;; color_02
         i32.const 0x00000000 ;; color_03
         call $render_lock
       end
@@ -809,8 +795,8 @@
       i32.eq
       if
         local.get $i
-        global.get $green_dark ;; color_01
-        global.get $yellow     ;; color_02
+        i32.const 0xFF008000 ;; color_01
+        i32.const 0xFF00FFFF   ;; color_02
         i32.const 0x00000000   ;; color_03
         call $render_lock
       end
@@ -822,8 +808,8 @@
       i32.eq
       if
         local.get $i
-        global.get $blue     ;; color_01
-        global.get $yellow   ;; color_02
+        i32.const 0xFFFF0000 ;; color_01
+        i32.const 0xFF00FFFF ;; color_02
         i32.const 0x00000000 ;; color_03
         call $render_lock
       end
@@ -844,14 +830,14 @@
     i32.const 1
     i32.eq
     if
-      global.get $red_dark
-      global.get $red
-      global.get $yellow
+      i32.const 0xFF000080
+      i32.const 0xFF0000FF
+      i32.const 0xFF00FFFF
       return
     end
-    global.get $black
-    global.get $wasm_blue
-    global.get $white
+    i32.const 0xFF000000
+    i32.const 0xFFF04F65
+    i32.const 0xFFFFFFFF
   )
   
   (func $render_player
@@ -864,7 +850,7 @@
       i32.const 16
       i32.const 16
       call $check_for_lucky
-      global.get $red
+      i32.const 0xFF0000FF
       i32.const 0x00000000
       i32.const 129792
       global.get $player_mode
@@ -878,7 +864,7 @@
       i32.const 16
       i32.const 16
       call $check_for_lucky
-      global.get $red
+      i32.const 0xFF0000FF
       i32.const 0x00000000
       i32.const 130048 
       global.get $player_mode
@@ -1086,9 +1072,9 @@
       i32.const 0
       i32.const 160
       i32.const 160
-      global.get $white
-      global.get $wasm_blue
-      global.get $red
+      i32.const 0xFFFFFFFF
+      i32.const 0xFFF04F65
+      i32.const 0xFF0000FF
       i32.const 0x00000000
       i32.const 0x00000000
       i32.const 102400
@@ -1146,8 +1132,8 @@
           ;; button_size
           i32.const 32
           i32.const 32
-          global.get $wasm_blue
-          global.get $yellow
+          i32.const 0xFFF04F65
+          i32.const 0xFF00FFFF
           i32.const 0x00000000
           i32.const 0x00000000
           i32.const 0x00000000
@@ -1176,7 +1162,7 @@
           ;; number_size
           i32.const 16
           i32.const 16
-          global.get $red
+          i32.const 0xFF0000FF
           i32.const 0x00000000
           i32.const 0x00000000
           i32.const 0x00000000
@@ -1215,7 +1201,7 @@
             i32.add
             i32.const 8
             i32.const 8
-            global.get $wasm_blue
+            i32.const 0xFFF04F65
             i32.const 0x00000000
             i32.const 0x00000000
             i32.const 0x00000000
@@ -1412,8 +1398,8 @@
           ;; button_size
           i32.const 32
           i32.const 32
-          global.get $wasm_blue
-          global.get $yellow
+          i32.const 0xFFF04F65
+          i32.const 0xFF00FFFF
           i32.const 0x00000000
           i32.const 0x00000000
           i32.const 0x00000000
@@ -1440,7 +1426,7 @@
           i32.add
           i32.const 16
           i32.const 16
-          global.get $red
+          i32.const 0xFF0000FF
           i32.const 0x00000000
           i32.const 0x00000000
           i32.const 0x00000000
@@ -1479,7 +1465,7 @@
             i32.add
             i32.const 8
             i32.const 8
-            global.get $wasm_blue
+            i32.const 0xFFF04F65
             i32.const 0x00000000
             i32.const 0x00000000
             i32.const 0x00000000
@@ -1520,12 +1506,12 @@
       i32.const 64      ;; dy
       i32.const 80      ;; dw
       i32.const 32      ;; dh
-      global.get $red_dark
-      global.get $green_dark
-      global.get $blue_dark
+      i32.const 0xFF000080
+      i32.const 0xFF008000
+      i32.const 0xFF800000
       call $color_switcher_3 ;; color_01
-      global.get $red        ;; color_02
-      global.get $blue       ;; color_03
+      i32.const 0xFF0000FF   ;; color_02
+      i32.const 0xFFFF0000   ;; color_03
       i32.const 0x00000000   ;; color_04
       i32.const 0x00000000   ;; color_05
       i32.const 138752       ;; data_address
@@ -1564,8 +1550,8 @@
         i32.const 0
         i32.const 8
         i32.const 8
-        global.get $red
-        global.get $white
+        i32.const 0xFF0000FF
+        i32.const 0xFFFFFFFF
         i32.const 0x00000000
         i32.const 0x00000000
         i32.const 0x00000000
@@ -1581,8 +1567,8 @@
         i32.const 0
         i32.const 8
         i32.const 8
-        global.get $green_dark
-        global.get $white
+        i32.const 0xFF008000
+        i32.const 0xFFFFFFFF
         i32.const 0x00000000
         i32.const 0x00000000
         i32.const 0x00000000
@@ -1598,8 +1584,8 @@
         i32.const 0
         i32.const 8
         i32.const 8
-        global.get $blue
-        global.get $white
+        i32.const 0xFFFF0000
+        i32.const 0xFFFFFFFF
         i32.const 0x00000000
         i32.const 0x00000000
         i32.const 0x00000000
@@ -1743,8 +1729,8 @@
       i32.sub
       i32.const 16
       i32.const 16
-      global.get $black
-      global.get $yellow
+      i32.const 0xFF000000
+      i32.const 0xFF00FFFF
       i32.const 0x00000000
       i32.const 0x00000000
       i32.const 0x00000000
@@ -1759,8 +1745,8 @@
       i32.sub
       i32.const 16
       i32.const 16
-      global.get $black
-      global.get $yellow
+      i32.const 0xFF000000
+      i32.const 0xFF00FFFF
       i32.const 0x00000000
       i32.const 0x00000000
       i32.const 0x00000000
