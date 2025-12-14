@@ -1044,11 +1044,58 @@
     end
   )
 
-  ;; MAZE_SELECT_SCENE
-  (func $maze_select_scene (local $i i32)
-    global.get $maze_selected
-    i32.const 0
-    i32.eq
+  ;; game loop
+  (func (export "game_loop")  
+    (local $i i32)
+    (local $mask_copy i32)
+    (local $value_copy i32)
+
+    global.get $scene_index
+	i32.const 0
+	i32.eq
+	if
+      ;; title_scene
+      global.get $title_image_loaded
+      i32.const 1
+      i32.ne
+      if
+        i32.const 1
+        global.set $title_image_loaded
+        i32.const 0
+        i32.const 0
+        i32.const 160
+        i32.const 160
+        i32.const 0xFFFFFFFF
+        i32.const 0xFFF04F65
+        i32.const 0xFF0000FF
+        i32.const 0x00000000
+        i32.const 0x00000000
+        i32.const 102400
+        call $render_color_indexed_sprite
+      end
+      global.get $countup
+      i32.const 179
+      i32.lt_s
+      if
+        global.get $countup
+        i32.const 1
+        i32.add
+        global.set $countup
+      else
+        i32.const 0
+        global.set $countup
+        i32.const 1
+        global.set $scene_index
+      end
+	end
+    global.get $scene_index
+	i32.const 1
+	i32.eq
+	if
+      ;; maze_select_scene
+      global.get $maze_selected
+      i32.const 0
+      i32.eq
       if
         i32.const 0x97
         i32.const 0x81
@@ -1299,7 +1346,6 @@
               end
             end
           end
-
           ;; increment by 1
           local.get $i
           i32.const 1
@@ -1437,12 +1483,13 @@
 	      global.set $scene_index
         end
       end
-  )
+    end
+    global.get $scene_index
+	i32.const 2
+	i32.eq
+	if
+      ;; game_scene
 
-  ;; GAME_SCENE
-  (func $game_scene
-    (local $mask_copy i32)
-    (local $value_copy i32)
     ;; check to see if maze cleared
     global.get $maze_cleared
     i32.const 1
@@ -1655,72 +1702,17 @@
         global.set $countup
       end
     end
-  )
-
-  (func $maze_maker_scene
-    ;; TODO: Write logic for this scene
-    i32.const 0x20
-    i32.const 0x20
-    i32.const 0x20
-    call $rgb_fill_screen
-  )
-
-  ;; game loop
-  (func (export "render_frame")  
-    global.get $scene_index
-	i32.const 0
-	i32.eq
-	if
-      global.get $title_image_loaded
-      i32.const 1
-      i32.ne
-      if
-        i32.const 1
-        global.set $title_image_loaded
-        i32.const 0
-        i32.const 0
-        i32.const 160
-        i32.const 160
-        i32.const 0xFFFFFFFF
-        i32.const 0xFFF04F65
-        i32.const 0xFF0000FF
-        i32.const 0x00000000
-        i32.const 0x00000000
-        i32.const 102400
-        call $render_color_indexed_sprite
-      end
-      global.get $countup
-      i32.const 179
-      i32.lt_s
-      if
-        global.get $countup
-        i32.const 1
-        i32.add
-        global.set $countup
-      else
-        i32.const 0
-        global.set $countup
-        i32.const 1
-        global.set $scene_index
-      end
-	end
-    global.get $scene_index
-	i32.const 1
-	i32.eq
-	if
-      call $maze_select_scene
-	end
-    global.get $scene_index
-	i32.const 2
-	i32.eq
-	if
-      call $game_scene
 	end
     global.get $scene_index
 	i32.const 3
 	i32.eq
 	if
-      call $maze_maker_scene
+      ;; maze_maker_scene
+      ;; TODO: Write logic for this scene
+      i32.const 0x20
+      i32.const 0x20
+      i32.const 0x20
+      call $rgb_fill_screen
 	end
     ;; render pointer
     global.get $timer_30
@@ -1764,6 +1756,10 @@
       call $render_color_indexed_sprite
     end
 
+
+
+
+    ;; todo work on timers
     global.get $timer_30
     i32.const 29
     i32.lt_s
