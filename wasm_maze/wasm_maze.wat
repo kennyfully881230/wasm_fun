@@ -63,56 +63,8 @@
       if
         local.get $i
         call $player_to_object_collision
-        if   
-          global.get $timer_cooldown_15
-          i32.const 0
-          i32.eq
-          if
-            i32.const 15
-            global.set $timer_cooldown_15
-            i32.const 144923 
-            i32.load16_u
-            call $play_data_sound
-          end
-          global.get $player_mode
-          i32.const 1
-          i32.eq
-          if
-            global.get $player_y
-            i32.const 1
-            i32.add
-            global.set $player_y
-          else
-            global.get $player_mode
-            i32.const 2
-            i32.eq
-            if
-              global.get $player_y
-              i32.const 1
-              i32.sub
-              global.set $player_y
-            else
-              global.get $player_mode
-              i32.const 3
-              i32.eq
-              if
-                global.get $player_x
-                i32.const 1
-                i32.add
-                global.set $player_x
-              else
-                global.get $player_mode
-                i32.const 4
-                i32.eq
-                if
-                  global.get $player_x
-                  i32.const 1
-                  i32.sub
-                  global.set $player_x
-                end
-              end
-            end
-          end
+        if
+          call $pushback_player
         end
       end
       ;; check if a wasm_block collides
@@ -228,7 +180,6 @@
             i32.const 144927
             i32.load16_u
             call $play_data_sound
-
             i32.const 400
             global.get $maze_index
             i32.mul
@@ -241,55 +192,7 @@
             i32.const 0
             global.set $has_key_red
           else
-            global.get $timer_cooldown_15
-            i32.const 0
-            i32.eq
-            if
-              i32.const 15
-              global.set $timer_cooldown_15
-              i32.const 144923 
-              i32.load16_u
-              call $play_data_sound
-            end
-              global.get $player_mode
-              i32.const 1
-              i32.eq
-              if
-                global.get $player_y
-                i32.const 1
-                i32.add
-                global.set $player_y
-              else
-                global.get $player_mode
-                i32.const 2
-                i32.eq
-              if
-                global.get $player_y
-                i32.const 1
-                i32.sub
-                global.set $player_y
-              else
-                global.get $player_mode
-                i32.const 3
-                i32.eq
-                if
-                  global.get $player_x
-                  i32.const 1
-                  i32.add
-                  global.set $player_x
-                else
-                  global.get $player_mode
-                  i32.const 4
-                  i32.eq
-                  if
-                    global.get $player_x
-                    i32.const 1
-                    i32.sub
-                    global.set $player_x
-                  end
-                end
-              end
-            end
+            call $pushback_player
           end
         end
       end
@@ -308,7 +211,6 @@
             i32.const 144927
             i32.load16_u
             call $play_data_sound
-
             i32.const 400
             global.get $maze_index
             i32.mul
@@ -321,55 +223,7 @@
             i32.const 0
             global.set $has_key_green
           else
-            global.get $timer_cooldown_15
-            i32.const 0
-            i32.eq
-            if
-              i32.const 15
-              global.set $timer_cooldown_15
-              i32.const 144923 
-              i32.load16_u
-              call $play_data_sound
-            end
-            global.get $player_mode
-            i32.const 1
-            i32.eq
-            if
-              global.get $player_y
-              i32.const 1
-              i32.add
-              global.set $player_y
-            else
-              global.get $player_mode
-              i32.const 2
-              i32.eq
-              if
-                global.get $player_y
-                i32.const 1
-                i32.sub
-                global.set $player_y
-              else
-                global.get $player_mode
-                i32.const 3
-                i32.eq
-                if
-                  global.get $player_x
-                  i32.const 1
-                  i32.add
-                  global.set $player_x
-                else
-                  global.get $player_mode
-                  i32.const 4
-                  i32.eq
-                  if
-                    global.get $player_x
-                    i32.const 1
-                    i32.sub
-                    global.set $player_x
-                  end
-                end
-              end
-            end
+            call $pushback_player
           end
         end
       end
@@ -388,7 +242,6 @@
             i32.const 144927
             i32.load16_u
             call $play_data_sound
-
             i32.const 400
             global.get $maze_index
             i32.mul
@@ -401,55 +254,7 @@
             i32.const 0
             global.set $has_key_blue
           else
-            global.get $timer_cooldown_15
-            i32.const 0
-            i32.eq
-            if
-              i32.const 15
-              global.set $timer_cooldown_15
-              i32.const 144923 
-              i32.load16_u
-              call $play_data_sound
-            end
-              global.get $player_mode
-              i32.const 1
-              i32.eq
-            if
-              global.get $player_y
-              i32.const 1
-              i32.add
-              global.set $player_y
-            else
-              global.get $player_mode
-              i32.const 2
-              i32.eq
-              if
-                global.get $player_y
-                i32.const 1
-                i32.sub
-                global.set $player_y
-              else
-                global.get $player_mode
-                i32.const 3
-                i32.eq
-                if
-                  global.get $player_x
-                  i32.const 1
-                  i32.add
-                  global.set $player_x
-                else
-                  global.get $player_mode
-                  i32.const 4
-                  i32.eq
-                  if
-                    global.get $player_x
-                    i32.const 1
-                    i32.sub
-                    global.set $player_x
-                  end
-                end
-              end
-            end
+            call $pushback_player
           end
         end
       end
@@ -491,6 +296,58 @@
     call $square_collision
     i32.const 1 ;; check for true
     i32.eq
+  )
+
+  (func $pushback_player
+    global.get $timer_cooldown_15
+    i32.const 0
+    i32.eq
+    if
+      i32.const 15
+      global.set $timer_cooldown_15
+      i32.const 144923 
+      i32.load16_u
+      call $play_data_sound
+    end
+    global.get $player_mode
+    i32.const 1
+    i32.eq
+    if
+      global.get $player_y
+      i32.const 1
+      i32.add
+      global.set $player_y
+    else
+      global.get $player_mode
+      i32.const 2
+      i32.eq
+      if
+        global.get $player_y
+        i32.const 1
+        i32.sub
+        global.set $player_y
+      else
+        global.get $player_mode
+        i32.const 3
+        i32.eq
+        if
+          global.get $player_x
+          i32.const 1
+          i32.add
+          global.set $player_x
+        else
+          global.get $player_mode
+          i32.const 4
+          i32.eq
+          if
+            global.get $player_x
+            i32.const 1
+            i32.sub
+            global.set $player_x
+          end
+        end
+      end
+    end
   )
 
   ;; render a sprite based on index colors
