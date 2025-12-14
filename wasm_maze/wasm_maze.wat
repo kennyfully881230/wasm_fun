@@ -69,59 +69,6 @@
     end    
   )
 
-  (func $pushback_player
-    global.get $timer_cooldown_15
-    i32.const 0
-    i32.eq
-    if
-      i32.const 15
-      global.set $timer_cooldown_15
-      i32.const 144923 
-      i32.load16_u
-      call $play_data_sound
-    end
-    
-    global.get $player_mode
-    i32.const 1
-    i32.eq
-    if
-      global.get $player_y
-      i32.const 1
-      i32.add
-      global.set $player_y
-    else
-      global.get $player_mode
-      i32.const 2
-      i32.eq
-      if
-        global.get $player_y
-        i32.const 1
-        i32.sub
-        global.set $player_y
-      else
-        global.get $player_mode
-        i32.const 3
-        i32.eq
-        if
-          global.get $player_x
-          i32.const 1
-          i32.add
-          global.set $player_x
-        else
-          global.get $player_mode
-          i32.const 4
-          i32.eq
-          if
-            global.get $player_x
-            i32.const 1
-            i32.sub
-            global.set $player_x
-          end
-        end
-      end
-    end
-  )
-
   (func $render_wasm_block
     (param $i i32)
     (param $color_01 i32)
@@ -401,11 +348,58 @@
       if
         local.get $i
         call $player_to_object_collision
-        if
-          call $pushback_player
+        if   
+          global.get $timer_cooldown_15
+          i32.const 0
+          i32.eq
+          if
+            i32.const 15
+            global.set $timer_cooldown_15
+            i32.const 144923 
+            i32.load16_u
+            call $play_data_sound
+          end
+          global.get $player_mode
+          i32.const 1
+          i32.eq
+          if
+            global.get $player_y
+            i32.const 1
+            i32.add
+            global.set $player_y
+          else
+            global.get $player_mode
+            i32.const 2
+            i32.eq
+            if
+              global.get $player_y
+              i32.const 1
+              i32.sub
+              global.set $player_y
+            else
+              global.get $player_mode
+              i32.const 3
+              i32.eq
+              if
+                global.get $player_x
+                i32.const 1
+                i32.add
+                global.set $player_x
+              else
+                global.get $player_mode
+                i32.const 4
+                i32.eq
+                if
+                  global.get $player_x
+                  i32.const 1
+                  i32.sub
+                  global.set $player_x
+                end
+              end
+            end
+          end
         end
       end
-
       ;; check if a wasm_block collides
       local.get $i
       i32.const 2
@@ -430,7 +424,6 @@
           end
         end
       end
-
       ;; check if a key_red collides
       local.get $i
       i32.const 3
@@ -442,7 +435,6 @@
           i32.const 144925
           i32.load16_u
           call $play_data_sound
-
           i32.const 400
           global.get $maze_index
           i32.mul
@@ -456,7 +448,6 @@
           global.set $has_key_red
         end
       end
-
       ;; check if a key_green collides
       local.get $i
       i32.const 4
@@ -482,7 +473,6 @@
           global.set $has_key_green
         end
       end
-
       ;; check if a key_blue collides
       local.get $i
       i32.const 5
@@ -508,7 +498,6 @@
           global.set $has_key_blue
         end
       end
-
       ;; check if a lock_red collides
       local.get $i
       i32.const 6
@@ -537,11 +526,58 @@
             i32.const 0
             global.set $has_key_red
           else
-            call $pushback_player
+            global.get $timer_cooldown_15
+            i32.const 0
+            i32.eq
+            if
+              i32.const 15
+              global.set $timer_cooldown_15
+              i32.const 144923 
+              i32.load16_u
+              call $play_data_sound
+            end
+              global.get $player_mode
+              i32.const 1
+              i32.eq
+              if
+                global.get $player_y
+                i32.const 1
+                i32.add
+                global.set $player_y
+              else
+                global.get $player_mode
+                i32.const 2
+                i32.eq
+              if
+                global.get $player_y
+                i32.const 1
+                i32.sub
+                global.set $player_y
+              else
+                global.get $player_mode
+                i32.const 3
+                i32.eq
+                if
+                  global.get $player_x
+                  i32.const 1
+                  i32.add
+                  global.set $player_x
+                else
+                  global.get $player_mode
+                  i32.const 4
+                  i32.eq
+                  if
+                    global.get $player_x
+                    i32.const 1
+                    i32.sub
+                    global.set $player_x
+                  end
+                end
+              end
+            end
           end
         end
       end
-      
       ;; check if a lock_green collides
       local.get $i
       i32.const 7
@@ -570,11 +606,58 @@
             i32.const 0
             global.set $has_key_green
           else
-            call $pushback_player
+            global.get $timer_cooldown_15
+            i32.const 0
+            i32.eq
+            if
+              i32.const 15
+              global.set $timer_cooldown_15
+              i32.const 144923 
+              i32.load16_u
+              call $play_data_sound
+            end
+            global.get $player_mode
+            i32.const 1
+            i32.eq
+            if
+              global.get $player_y
+              i32.const 1
+              i32.add
+              global.set $player_y
+            else
+              global.get $player_mode
+              i32.const 2
+              i32.eq
+              if
+                global.get $player_y
+                i32.const 1
+                i32.sub
+                global.set $player_y
+              else
+                global.get $player_mode
+                i32.const 3
+                i32.eq
+                if
+                  global.get $player_x
+                  i32.const 1
+                  i32.add
+                  global.set $player_x
+                else
+                  global.get $player_mode
+                  i32.const 4
+                  i32.eq
+                  if
+                    global.get $player_x
+                    i32.const 1
+                    i32.sub
+                    global.set $player_x
+                  end
+                end
+              end
+            end
           end
         end
       end
-      
       ;; check if a lock_blue collides
       local.get $i
       i32.const 8
@@ -603,11 +686,58 @@
             i32.const 0
             global.set $has_key_blue
           else
-            call $pushback_player
+            global.get $timer_cooldown_15
+            i32.const 0
+            i32.eq
+            if
+              i32.const 15
+              global.set $timer_cooldown_15
+              i32.const 144923 
+              i32.load16_u
+              call $play_data_sound
+            end
+              global.get $player_mode
+              i32.const 1
+              i32.eq
+            if
+              global.get $player_y
+              i32.const 1
+              i32.add
+              global.set $player_y
+            else
+              global.get $player_mode
+              i32.const 2
+              i32.eq
+              if
+                global.get $player_y
+                i32.const 1
+                i32.sub
+                global.set $player_y
+              else
+                global.get $player_mode
+                i32.const 3
+                i32.eq
+                if
+                  global.get $player_x
+                  i32.const 1
+                  i32.add
+                  global.set $player_x
+                else
+                  global.get $player_mode
+                  i32.const 4
+                  i32.eq
+                  if
+                    global.get $player_x
+                    i32.const 1
+                    i32.sub
+                    global.set $player_x
+                  end
+                end
+              end
+            end
           end
         end
       end
-      
       ;; increment i
       local.get $i
       i32.const 1
