@@ -24,20 +24,6 @@
   (global $timer_cooldown_15             (mut i32) (i32.const 0   )) ;; used for limiting repeating sounds
   (global $title_image_loaded            (mut i32) (i32.const 0   )) ;; check to see if title image loaded
 
-  ;; mathmatic abs function
-  (func $i32_abs (param $value i32) (result i32)
-    local.get $value
-    i32.const 0
-    i32.lt_s
-    if
-      i32.const 0
-      local.get $value
-      i32.sub
-      return
-    end
-    local.get $value
-  )
-
   (func $color_switcher (param $color_01 i32) (param $color_02 i32) (result i32)
     global.get $timer_60
     i32.const 29
@@ -1492,6 +1478,8 @@
 
   ;; GAME_SCENE
   (func $game_scene
+    (local $mask_copy i32)
+    (local $value_copy i32)
     ;; check to see if maze cleared
     global.get $maze_cleared
     i32.const 1
@@ -1602,12 +1590,31 @@
         i32.load8_u
         i32.const 80 ;; half of the screen 
         i32.sub
-        call $i32_abs
+        ;; i32_abs_inline_function        
+        ;; --- INLINED i32_abs (Bitwise Trick) ---
+        local.tee $value_copy  ;; Stack: [..., -10, -10]. Saves a copy to a local $value_copy
+        i32.const 31           ;; Stack: [..., -10, 31]
+        i32.shr_s              ;; Stack: [..., mask] (mask = -1 for -10)
+        local.tee $mask_copy   ;; Stack: [..., mask, mask]. Saves mask to a local $mask_copy
+        local.get $value_copy  ;; Stack: [..., mask, mask, -10]
+        i32.xor                ;; Stack: [..., mask, (value XOR mask)]
+        local.get $mask_copy   ;; Stack: [..., (value XOR mask), mask]
+        i32.sub                ;; Stack: [..., ABS(value)] ((value XOR mask) - mask)
+
         i32.const 144942
         i32.load8_u
         i32.const 80 ;; half of the screen 
         i32.sub
-        call $i32_abs
+        ;; --- INLINED i32_abs (Bitwise Trick) ---
+        local.tee $value_copy  ;; Stack: [..., -10, -10]. Saves a copy to a local $value_copy
+        i32.const 31           ;; Stack: [..., -10, 31]
+        i32.shr_s              ;; Stack: [..., mask] (mask = -1 for -10)
+        local.tee $mask_copy   ;; Stack: [..., mask, mask]. Saves mask to a local $mask_copy
+        local.get $value_copy  ;; Stack: [..., mask, mask, -10]
+        i32.xor                ;; Stack: [..., mask, (value XOR mask)]
+        local.get $mask_copy   ;; Stack: [..., (value XOR mask), mask]
+
+        i32.sub                ;; Stack: [..., ABS(value)] ((value XOR mask) - mask)
         i32.gt_s
         if
           i32.const 144943
