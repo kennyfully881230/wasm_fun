@@ -1,4 +1,5 @@
 ;; Kenny Fully made this example. May GOD bless you.
+;; Please understand that the maze editor feature is coming soon!
 (module
   ;; imports
   (import "sound" "playDataSound" (func $play_data_sound (param i32)))
@@ -979,57 +980,46 @@
       end
     end
     i32.const 0
-  )  
+  )
 
-  ;; game loop
-  (func (export "game_loop")  
-    (local $i i32)
-    (local $mask_copy i32)
-    (local $value_copy i32)
-
-    global.get $scene_index
-	i32.const 0
-	i32.eq
-	if
-      ;; title_scene
-      global.get $title_image_loaded
+  ;; scenes
+  
+  (func $scene_title
+    global.get $title_image_loaded
+    i32.const 1
+    i32.ne
+    if
       i32.const 1
-      i32.ne
-      if
-        i32.const 1
-        global.set $title_image_loaded
-        i32.const 0
-        i32.const 0
-        i32.const 160
-        i32.const 160
-        i32.const 0xFFFFFFFF
-        i32.const 0xFFF04F65
-        i32.const 0xFF0000FF
-        i32.const 0x00000000
-        i32.const 0x00000000
-        i32.const 102400
-        call $render_color_indexed_sprite
-      end
+      global.set $title_image_loaded
+      i32.const 0
+      i32.const 0
+      i32.const 160
+      i32.const 160
+      i32.const 0xFFFFFFFF
+      i32.const 0xFFF04F65
+      i32.const 0xFF0000FF
+      i32.const 0x00000000
+      i32.const 0x00000000
+      i32.const 102400
+      call $render_color_indexed_sprite
+    end
+    global.get $countup
+    i32.const 179
+    i32.lt_s
+    if
       global.get $countup
-      i32.const 179
-      i32.lt_s
-      if
-        global.get $countup
-        i32.const 1
-        i32.add
-        global.set $countup
-      else
-        i32.const 0
-        global.set $countup
-        i32.const 1
-        global.set $scene_index
-      end
-	end
-    global.get $scene_index
-	i32.const 1
-	i32.eq
-	if
-      ;; maze_select_scene
+      i32.const 1
+      i32.add
+      global.set $countup
+    else
+      i32.const 0
+      global.set $countup
+      i32.const 1
+      global.set $scene_index
+    end    
+  )
+
+  (func $scene_maze_select (local $i i32)
       global.get $maze_selected
       i32.const 0
       i32.eq
@@ -1420,278 +1410,302 @@
 	      global.set $scene_index
         end
       end
-    end
-    global.get $scene_index
-	i32.const 2
-	i32.eq
-	if
-      ;; game_scene
-
+  )
+ 
+  (func $scene_game
+    (local $mask_copy i32)
+    (local $value_copy i32)
     ;; check to see if maze cleared
     global.get $maze_cleared
     i32.const 1
     i32.eq
     if
-      i32.const 0xFF
-      i32.const 0xFF
-      i32.const 0xFF
-      call $rgb_fill_screen
-      ;; if maze cleared just show the you win modal
-      i32.const 40      ;; dx
-      i32.const 64      ;; dy
-      i32.const 80      ;; dw
-      i32.const 32      ;; dh
-      i32.const 0xFF000080
-      i32.const 0xFF008000
-      global.get $timer_30
-      i32.const 9
-      i32.lt_s
-      select
-      i32.const 0xFF800000
-      global.get $timer_30
-      i32.const 19
-      i32.lt_s
-      select ;; color_01
-      i32.const 0xFF0000FF   ;; color_02
-      i32.const 0xFFFF0000   ;; color_03
-      i32.const 0x00000000   ;; color_04
-      i32.const 0x00000000   ;; color_05
-      i32.const 138752       ;; data_address
-      call $render_color_indexed_sprite
-      ;; 3 sound switcher
-      global.get $timer_30
-      i32.const 9
-      i32.lt_s
-      if
-        global.get $timer_cooldown_15
-        i32.const 0
-        i32.eq
-        if
-          i32.const 9
-          global.set $timer_cooldown_15
-          i32.const 144923
-          i32.load16_u
-          call $play_data_sound
-        end
-      else
-        global.get $timer_30
-        i32.const 19
-        i32.lt_s
-        if
-          global.get $timer_cooldown_15
-          i32.const 0
-          i32.eq
-          if
-            i32.const 9
-            global.set $timer_cooldown_15
-            i32.const 144925
-            i32.load16_u
-            call $play_data_sound
-          end
-        else
-          global.get $timer_cooldown_15
-          i32.const 0
-          i32.eq
-          if
-            i32.const 9
-            global.set $timer_cooldown_15
-            i32.const 144927
-            i32.load16_u
-            call $play_data_sound
-          end
-        end
-      end    
-      ;; increment $countup if less than 179
-      global.get $countup
-      i32.const 179
-      i32.lt_s
-      if
-        global.get $countup
-    	i32.const 1
-    	i32.add
-    	global.set $countup
-      else
-        i32.const 0
-        global.set $maze_cleared
-    	i32.const 0
-    	global.set $countup
-    	i32.const 1
-    	global.set $scene_index
-      end
+    i32.const 0xFF
+    i32.const 0xFF
+    i32.const 0xFF
+    call $rgb_fill_screen
+    ;; if maze cleared just show the you win modal
+    i32.const 40      ;; dx
+    i32.const 64      ;; dy
+    i32.const 80      ;; dw
+    i32.const 32      ;; dh
+    i32.const 0xFF000080
+    i32.const 0xFF008000
+    global.get $timer_30
+    i32.const 9
+    i32.lt_s
+    select
+    i32.const 0xFF800000
+    global.get $timer_30
+    i32.const 19
+    i32.lt_s
+    select ;; color_01
+    i32.const 0xFF0000FF   ;; color_02
+    i32.const 0xFFFF0000   ;; color_03
+    i32.const 0x00000000   ;; color_04
+    i32.const 0x00000000   ;; color_05
+    i32.const 138752       ;; data_address
+    call $render_color_indexed_sprite
+    ;; 3 sound switcher
+    global.get $timer_30
+    i32.const 9
+    i32.lt_s
+    if
+    global.get $timer_cooldown_15
+    i32.const 0
+    i32.eq
+    if
+    i32.const 9
+    global.set $timer_cooldown_15
+    i32.const 144923
+    i32.load16_u
+    call $play_data_sound
+    end
     else
-      i32.const 0xDF
-      i32.const 0xFF
-      i32.const 0xDF
-      call $rgb_fill_screen
+    global.get $timer_30
+    i32.const 19
+    i32.lt_s
+    if
+    global.get $timer_cooldown_15
+    i32.const 0
+    i32.eq
+    if
+    i32.const 9
+    global.set $timer_cooldown_15
+    i32.const 144925
+    i32.load16_u
+    call $play_data_sound
+    end
+    else
+    global.get $timer_cooldown_15
+    i32.const 0
+    i32.eq
+    if
+    i32.const 9
+    global.set $timer_cooldown_15
+    i32.const 144927
+    i32.load16_u
+    call $play_data_sound
+    end
+    end
+    end    
+    ;; increment $countup if less than 179
+    global.get $countup
+    i32.const 179
+    i32.lt_s
+    if
+    global.get $countup
+    i32.const 1
+    i32.add
+    global.set $countup
+    else
+    i32.const 0
+    global.set $maze_cleared
+    i32.const 0
+    global.set $countup
+    i32.const 1
+    global.set $scene_index
+    end
+    else
+    i32.const 0xDF
+    i32.const 0xFF
+    i32.const 0xDF
+    call $rgb_fill_screen
 
-      call $render_map
-      call $render_player
-      i32.const 144944
-      i32.load8_u
-      i32.const 1
-      i32.eq
-      if
-        i32.const 0
-        i32.const 0
-        i32.const 8
-        i32.const 8
-        i32.const 0xFF0000FF
-        i32.const 0xFFFFFFFF
-        i32.const 0x00000000
-        i32.const 0x00000000
-        i32.const 0x00000000
-        i32.const 133312 
-        call $render_color_indexed_sprite
-      end
-
-      i32.const 144945
-      i32.load8_u
-      i32.const 1
-      i32.eq
-      if
-        i32.const 8
-        i32.const 0
-        i32.const 8
-        i32.const 8
-        i32.const 0xFF008000
-        i32.const 0xFFFFFFFF
-        i32.const 0x00000000
-        i32.const 0x00000000
-        i32.const 0x00000000
-        i32.const 133312 
-        call $render_color_indexed_sprite
-      end
-
-      i32.const 144946
-      i32.load8_u
-      i32.const 1
-      i32.eq
-      if
-        i32.const 16
-        i32.const 0
-        i32.const 8
-        i32.const 8
-        i32.const 0xFFFF0000
-        i32.const 0xFFFFFFFF
-        i32.const 0x00000000
-        i32.const 0x00000000
-        i32.const 0x00000000
-        i32.const 133312 
-        call $render_color_indexed_sprite
-      end
-      ;; update player pos
-      i32.const 144942
-      i32.load8_u
-      i32.const 255
-      i32.ne
-      if
-        i32.const 144943
-        i32.load8_u
-        i32.const 80 ;; half of the screen 
-        i32.sub
-        ;; i32_abs_inline_function        
-        ;; --- INLINED i32_abs (Bitwise Trick) ---
-        local.tee $value_copy  ;; Stack: [..., -10, -10]. Saves a copy to a local $value_copy
-        i32.const 31           ;; Stack: [..., -10, 31]
-        i32.shr_s              ;; Stack: [..., mask] (mask = -1 for -10)
-        local.tee $mask_copy   ;; Stack: [..., mask, mask]. Saves mask to a local $mask_copy
-        local.get $value_copy  ;; Stack: [..., mask, mask, -10]
-        i32.xor                ;; Stack: [..., mask, (value XOR mask)]
-        local.get $mask_copy   ;; Stack: [..., (value XOR mask), mask]
-        i32.sub                ;; Stack: [..., ABS(value)] ((value XOR mask) - mask)
-
-        i32.const 144942
-        i32.load8_u
-        i32.const 80 ;; half of the screen 
-        i32.sub
-        ;; --- INLINED i32_abs (Bitwise Trick) ---
-        local.tee $value_copy  ;; Stack: [..., -10, -10]. Saves a copy to a local $value_copy
-        i32.const 31           ;; Stack: [..., -10, 31]
-        i32.shr_s              ;; Stack: [..., mask] (mask = -1 for -10)
-        local.tee $mask_copy   ;; Stack: [..., mask, mask]. Saves mask to a local $mask_copy
-        local.get $value_copy  ;; Stack: [..., mask, mask, -10]
-        i32.xor                ;; Stack: [..., mask, (value XOR mask)]
-        local.get $mask_copy   ;; Stack: [..., (value XOR mask), mask]
-
-        i32.sub                ;; Stack: [..., ABS(value)] ((value XOR mask) - mask)
-        i32.gt_s
-        if
-          i32.const 144943
-          i32.load8_u
-          i32.const 72 ;; cam_y
-          i32.lt_s
-          if
-            global.get $player_y
-            i32.const 1
-            i32.sub
-            global.set $player_y
-            ;; up
-            i32.const 1
-            global.set $player_mode
-          else
-            global.get $player_y
-            i32.const 1
-            i32.add
-            global.set $player_y
-            ;; down
-            i32.const 2
-            global.set $player_mode
-          end
-        else
-          i32.const 144942
-          i32.load8_u 
-          i32.const 72 ;; cam_x
-          i32.lt_s
-          if
-            global.get $player_x
-            i32.const 1
-            i32.sub
-            global.set $player_x
-            ;; left
-            i32.const 3
-            global.set $player_mode
-          else
-            global.get $player_x
-            i32.const 1
-            i32.add
-            global.set $player_x
-            ;; right
-            i32.const 4
-            global.set $player_mode
-          end
-        end
-      else
-        i32.const 0
-        global.set $player_mode ;; idle
-      end
-      ;; check for solids etc
-      call $collision_checks
+    call $render_map
+    call $render_player
+    i32.const 144944
+    i32.load8_u
+    i32.const 1
+    i32.eq
+    if
+    i32.const 0
+    i32.const 0
+    i32.const 8
+    i32.const 8
+    i32.const 0xFF0000FF
+    i32.const 0xFFFFFFFF
+    i32.const 0x00000000
+    i32.const 0x00000000
+    i32.const 0x00000000
+    i32.const 133312 
+    call $render_color_indexed_sprite
     end
 
+    i32.const 144945
+    i32.load8_u
+    i32.const 1
+    i32.eq
+    if
+    i32.const 8
+    i32.const 0
+    i32.const 8
+    i32.const 8
+    i32.const 0xFF008000
+    i32.const 0xFFFFFFFF
+    i32.const 0x00000000
+    i32.const 0x00000000
+    i32.const 0x00000000
+    i32.const 133312 
+    call $render_color_indexed_sprite
+    end
+
+    i32.const 144946
+    i32.load8_u
+    i32.const 1
+    i32.eq
+    if
+    i32.const 16
+    i32.const 0
+    i32.const 8
+    i32.const 8
+    i32.const 0xFFFF0000
+    i32.const 0xFFFFFFFF
+    i32.const 0x00000000
+    i32.const 0x00000000
+    i32.const 0x00000000
+    i32.const 133312 
+    call $render_color_indexed_sprite
+    end
+    ;; update player pos
+    i32.const 144942
+    i32.load8_u
+    i32.const 255
+    i32.ne
+    if
+    i32.const 144943
+    i32.load8_u
+    i32.const 80 ;; half of the screen 
+    i32.sub
+    ;; i32_abs_inline_function        
+    ;; --- INLINED i32_abs (Bitwise Trick) ---
+    local.tee $value_copy  ;; Stack: [..., -10, -10]. Saves a copy to a local $value_copy
+    i32.const 31           ;; Stack: [..., -10, 31]
+    i32.shr_s              ;; Stack: [..., mask] (mask = -1 for -10)
+    local.tee $mask_copy   ;; Stack: [..., mask, mask]. Saves mask to a local $mask_copy
+    local.get $value_copy  ;; Stack: [..., mask, mask, -10]
+    i32.xor                ;; Stack: [..., mask, (value XOR mask)]
+    local.get $mask_copy   ;; Stack: [..., (value XOR mask), mask]
+    i32.sub                ;; Stack: [..., ABS(value)] ((value XOR mask) - mask)
+
+    i32.const 144942
+    i32.load8_u
+    i32.const 80 ;; half of the screen 
+    i32.sub
+    ;; --- INLINED i32_abs (Bitwise Trick) ---
+    local.tee $value_copy  ;; Stack: [..., -10, -10]. Saves a copy to a local $value_copy
+    i32.const 31           ;; Stack: [..., -10, 31]
+    i32.shr_s              ;; Stack: [..., mask] (mask = -1 for -10)
+    local.tee $mask_copy   ;; Stack: [..., mask, mask]. Saves mask to a local $mask_copy
+    local.get $value_copy  ;; Stack: [..., mask, mask, -10]
+    i32.xor                ;; Stack: [..., mask, (value XOR mask)]
+    local.get $mask_copy   ;; Stack: [..., (value XOR mask), mask]
+
+    i32.sub                ;; Stack: [..., ABS(value)] ((value XOR mask) - mask)
+    i32.gt_s
+    if
+    i32.const 144943
+    i32.load8_u
+    i32.const 72 ;; cam_y
+    i32.lt_s
+    if
+    global.get $player_y
+    i32.const 1
+    i32.sub
+    global.set $player_y
+    ;; up
+    i32.const 1
+    global.set $player_mode
+    else
+    global.get $player_y
+    i32.const 1
+    i32.add
+    global.set $player_y
+    ;; down
+    i32.const 2
+    global.set $player_mode
+    end
+    else
+    i32.const 144942
+    i32.load8_u 
+    i32.const 72 ;; cam_x
+    i32.lt_s
+    if
+    global.get $player_x
+    i32.const 1
+    i32.sub
+    global.set $player_x
+    ;; left
+    i32.const 3
+    global.set $player_mode
+    else
+    global.get $player_x
+    i32.const 1
+    i32.add
+    global.set $player_x
+    ;; right
+    i32.const 4
+    global.set $player_mode
+    end
+    end
+    else
+    i32.const 0
+    global.set $player_mode ;; idle
+    end
+    ;; check for solids etc
+    call $collision_checks
+    end
     ;; just a fade in
     global.get $maze_init
     i32.const 1
     i32.eq
     if
-      global.get $countup
-      global.get $countup
-      i32.const 0x3B
-      call $rgb_fill_screen
+    global.get $countup
+    global.get $countup
+    i32.const 0x3B
+    call $rgb_fill_screen
 
-      global.get $countup
-      i32.const 59
-      i32.gt_s
-      if
-        i32.const 0
-        global.set $maze_init
-      else
-        global.get $countup
-        i32.const 1
-        i32.add
-        global.set $countup
-      end
+    global.get $countup
+    i32.const 59
+    i32.gt_s
+    if
+    i32.const 0
+    global.set $maze_init
+    else
+    global.get $countup
+    i32.const 1
+    i32.add
+    global.set $countup
     end
+    end
+  )    
+
+  ;; game loop
+  (func (export "game_loop")  
+    (local $i i32)
+
+    global.get $scene_index
+	i32.const 0
+	i32.eq
+	if
+      call $scene_title
 	end
+
+    global.get $scene_index
+	i32.const 1
+	i32.eq
+	if
+     call $scene_maze_select
+    end
+
+    global.get $scene_index
+	i32.const 2
+	i32.eq
+	if
+      call $scene_game
+	end
+
+    ;; maze maker feature coming soon
     global.get $scene_index
 	i32.const 3
 	i32.eq
@@ -1703,6 +1717,7 @@
       i32.const 0x20
       call $rgb_fill_screen
 	end
+
     ;; render pointer
     global.get $timer_30
     i32.const 14
@@ -1744,10 +1759,6 @@
       i32.const 128256
       call $render_color_indexed_sprite
     end
-
-
-
-
     ;; todo work on timers
     global.get $timer_30
     i32.const 29
