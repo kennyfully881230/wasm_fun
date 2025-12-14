@@ -3,8 +3,6 @@
   ;; imports
   (import "sound" "playDataSound" (func $play_data_sound (param i32)))
   ;; exports
-  (global $pointer_x (export "pointer_x") (mut i32) (i32.const 255))
-  (global $pointer_y (export "pointer_y") (mut i32) (i32.const 255))
   (memory (export "memory") 3) ;; 196608 bytes
   ;; mutable variables
   (global $countup                       (mut i32) (i32.const 0   ))
@@ -1211,8 +1209,10 @@
           end
           ;; check col
           ;; pointer
-          global.get $pointer_x
-          global.get $pointer_y
+          i32.const 144942
+          i32.load8_u
+          i32.const 144943
+          i32.load8_u
           i32.const 1
           ;; button_x
           i32.const 16
@@ -1593,21 +1593,25 @@
         call $render_color_indexed_sprite
       end
       ;; update player pos
-      global.get $pointer_x
+      i32.const 144942
+      i32.load8_u
       i32.const 255
       i32.ne
       if
-        global.get $pointer_y
+        i32.const 144943
+        i32.load8_u
         i32.const 80 ;; half of the screen 
         i32.sub
         call $i32_abs
-        global.get $pointer_x
+        i32.const 144942
+        i32.load8_u
         i32.const 80 ;; half of the screen 
         i32.sub
         call $i32_abs
         i32.gt_s
         if
-          global.get $pointer_y
+          i32.const 144943
+          i32.load8_u
           i32.const 72 ;; cam_y
           i32.lt_s
           if
@@ -1628,7 +1632,8 @@
             global.set $player_mode
           end
         else
-          global.get $pointer_x
+          i32.const 144942
+          i32.load8_u 
           i32.const 72 ;; cam_x
           i32.lt_s
           if
@@ -1721,10 +1726,12 @@
     i32.const 14
     i32.lt_s
     if
-      global.get $pointer_x
+      i32.const 144942
+      i32.load8_u
       i32.const 8
       i32.sub
-      global.get $pointer_y
+      i32.const 144943
+      i32.load8_u
       i32.const 8
       i32.sub
       i32.const 16
@@ -1737,10 +1744,12 @@
       i32.const 128000
       call $render_color_indexed_sprite
     else
-      global.get $pointer_x
+      i32.const 144942
+      i32.load8_u
       i32.const 8
       i32.sub
-      global.get $pointer_y
+      i32.const 144943
+      i32.load8_u
       i32.const 8
       i32.sub
       i32.const 16
@@ -2867,12 +2876,12 @@
     "\B8\01" ;; 440 = LA A4
     "\EE\01" ;; 494 = TI (Si) B4
     "\0B\02" ;; 523 = DO C5 (High C)
-    ;; 144937 
-    ;; color_mixer = 4 bytes
+    ;; 144937 | color_mixer = 4 bytes
     "\00\00\00\FF"
-    ;; 144941
-    ;; counter_256_up = 1 byte
+    ;; 144941 | counter_256_up = 1 byte
     "\00"
+    ;; 144942 | pointer_x and pointer_y = 2 bytes
+    "\FF\FF"
   )
 )
 
