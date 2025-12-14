@@ -1044,43 +1044,6 @@
     end
   )
 
-  ;; TITLE_SCENE
-  (func $title_scene (local $i i32)
-    global.get $title_image_loaded
-    i32.const 1
-    i32.ne
-    if
-      i32.const 1
-      global.set $title_image_loaded
-      i32.const 0
-      i32.const 0
-      i32.const 160
-      i32.const 160
-      i32.const 0xFFFFFFFF
-      i32.const 0xFFF04F65
-      i32.const 0xFF0000FF
-      i32.const 0x00000000
-      i32.const 0x00000000
-      i32.const 102400
-      call $render_color_indexed_sprite
-    end
-	;; check to see if $countup is 179
-	global.get $countup
-	i32.const 179
-	i32.lt_s
-	if
-	  global.get $countup
-	  i32.const 1
-	  i32.add
-	  global.set $countup
- 	else
-	  i32.const 0
-	  global.set $countup
-	  i32.const 1
-	  global.set $scene_index
-	end
-  )
-
   ;; MAZE_SELECT_SCENE
   (func $maze_select_scene (local $i i32)
     global.get $maze_selected
@@ -1708,7 +1671,38 @@
 	i32.const 0
 	i32.eq
 	if
-      call $title_scene
+      global.get $title_image_loaded
+      i32.const 1
+      i32.ne
+      if
+        i32.const 1
+        global.set $title_image_loaded
+        i32.const 0
+        i32.const 0
+        i32.const 160
+        i32.const 160
+        i32.const 0xFFFFFFFF
+        i32.const 0xFFF04F65
+        i32.const 0xFF0000FF
+        i32.const 0x00000000
+        i32.const 0x00000000
+        i32.const 102400
+        call $render_color_indexed_sprite
+      end
+      global.get $countup
+      i32.const 179
+      i32.lt_s
+      if
+        global.get $countup
+        i32.const 1
+        i32.add
+        global.set $countup
+      else
+        i32.const 0
+        global.set $countup
+        i32.const 1
+        global.set $scene_index
+      end
 	end
     global.get $scene_index
 	i32.const 1
