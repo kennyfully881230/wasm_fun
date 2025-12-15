@@ -779,6 +779,49 @@
     end
   )
 
+  (func $render_pointer
+    global.get $timer_30
+    i32.const 14
+    i32.lt_s
+    if
+      i32.const 144942
+      i32.load8_u
+      i32.const 8
+      i32.sub
+      i32.const 144943
+      i32.load8_u
+      i32.const 8
+      i32.sub
+      i32.const 16
+      i32.const 16
+      i32.const 0xFF000000
+      i32.const 0xFF00FFFF
+      i32.const 0x00000000
+      i32.const 0x00000000
+      i32.const 0x00000000
+      i32.const 128000
+      call $render_color_indexed_sprite
+    else
+      i32.const 144942
+      i32.load8_u
+      i32.const 8
+      i32.sub
+      i32.const 144943
+      i32.load8_u
+      i32.const 8
+      i32.sub
+      i32.const 16
+      i32.const 16
+      i32.const 0xFF000000
+      i32.const 0xFF00FFFF
+      i32.const 0x00000000
+      i32.const 0x00000000
+      i32.const 0x00000000
+      i32.const 128256
+      call $render_color_indexed_sprite
+    end
+  )
+
   (func $render_sweet_rock
     (param $i i32)
     (param $color_01 i32)
@@ -1678,7 +1721,141 @@
     global.set $countup
     end
     end
-  )    
+  )
+
+  (func $scene_maze_maker
+    i32.const 0xFF
+    i32.const 0xF0
+    i32.const 0xF0
+    call $rgb_fill_screen
+    ;; up arrow
+    i32.const 56         ;; dx
+    i32.const 8          ;; dy
+    i32.const 16         ;; dw
+    i32.const 16         ;; dh
+    i32.const 0xFF000000 ;; color_01
+    i32.const 0xFF00FF00 ;; color_02
+    i32.const 0xFF000000 ;; color_03
+    i32.const 0xFF000000 ;; color_04
+    i32.const 0xFF000000 ;; color_05
+    i32.const 128512     ;; memory_address
+    call $render_color_indexed_sprite
+    ;; down arrow
+    i32.const 56         ;; dx
+    i32.const 104        ;; dy
+    i32.const 16         ;; dw
+    i32.const 16         ;; dh
+    i32.const 0xFF000000 ;; color_01
+    i32.const 0xFF00FF00 ;; color_02
+    i32.const 0xFF000000 ;; color_03
+    i32.const 0xFF000000 ;; color_04
+    i32.const 0xFF000000 ;; color_05
+    i32.const 128768     ;; memory_address
+    call $render_color_indexed_sprite
+    ;; left arrow
+    i32.const 8          ;; dx
+    i32.const 56         ;; dy
+    i32.const 16         ;; dw
+    i32.const 16         ;; dh
+    i32.const 0xFF000000 ;; color_01
+    i32.const 0xFF00FF00 ;; color_02
+    i32.const 0xFF000000 ;; color_03
+    i32.const 0xFF000000 ;; color_04
+    i32.const 0xFF000000 ;; color_05
+    i32.const 129024     ;; memory_address
+    call $render_color_indexed_sprite
+    ;; right arrow
+    i32.const 104        ;; dx
+    i32.const 56         ;; dy
+    i32.const 16         ;; dw
+    i32.const 16         ;; dh
+    i32.const 0xFF000000 ;; color_01
+    i32.const 0xFF00FF00 ;; color_02
+    i32.const 0xFF000000 ;; color_03
+    i32.const 0xFF000000 ;; color_04
+    i32.const 0xFF000000 ;; color_05
+    i32.const 129280     ;; memory_address
+    call $render_color_indexed_sprite
+    ;; ???
+
+    ;; sweet_rock
+    i32.const 136        ;; dx
+    i32.const 8          ;; dy
+    i32.const 16         ;; dw
+    i32.const 16         ;; dh
+    i32.const 0xFF000000 ;; color_01
+    i32.const 0xFFF5F5FF ;; color_02
+    i32.const 0xFF0000FF ;; color_03
+    i32.const 0xFFF04F65 ;; color_04
+    i32.const 0xFF9CE1FF ;; color_05
+    i32.const 129536     ;; memory_address
+    call $render_color_indexed_sprite
+
+    ;; player_idle
+    i32.const 120        ;; dx
+    i32.const 24         ;; dy
+    i32.const 16         ;; dw
+    i32.const 16         ;; dh
+    i32.const 0xFF000000 ;; color_01
+    i32.const 0xFFF04F65 ;; color_02
+    i32.const 0xFFFFFFFF ;; color_03
+    i32.const 0xFF0000FF ;; color_04
+    i32.const 0x00000000 ;; color_05
+    i32.const 130048     ;; memory_address
+    call $render_color_indexed_sprite
+
+    ;; wasm_block
+    i32.const 136        ;; dx
+    i32.const 24         ;; dy
+    i32.const 16         ;; dw
+    i32.const 16         ;; dh
+    i32.const 0xFFF04F65 ;; color_01
+    i32.const 0xFFF5F5FF ;; color_02
+    i32.const 0xFFFFFFFF ;; color_03
+    i32.const 0x00000000 ;; color_04
+    i32.const 0x00000000 ;; color_05
+    i32.const 132352     ;; memory_address
+    call $render_color_indexed_sprite
+
+    ;; maze_maker_play_button
+    i32.const 8          ;; dx
+    i32.const 136        ;; dy
+    i32.const 40         ;; dw
+    i32.const 16         ;; dh
+    i32.const 0xFF808080 ;; color_01
+    i32.const 0x00000000 ;; color_02
+    i32.const 0x00000000 ;; color_03
+    i32.const 0x00000000 ;; color_04
+    i32.const 0x00000000 ;; color_05
+    i32.const 133440     ;; memory_address
+    call $render_color_indexed_sprite
+
+    ;; maze_maker_load_button
+    i32.const 60         ;; dx
+    i32.const 136        ;; dy
+    i32.const 40         ;; dw
+    i32.const 16         ;; dh
+    i32.const 0xFF808080 ;; color_01
+    i32.const 0x00000000 ;; color_02
+    i32.const 0x00000000 ;; color_03
+    i32.const 0x00000000 ;; color_04
+    i32.const 0x00000000 ;; color_05
+    i32.const 134080     ;; memory_address
+    call $render_color_indexed_sprite
+
+    ;; maze_maker_share_button
+    i32.const 112        ;; dx
+    i32.const 136        ;; dy
+    i32.const 40         ;; dw
+    i32.const 16         ;; dh
+    i32.const 0xFF808080 ;; color_01
+    i32.const 0x00000000 ;; color_02
+    i32.const 0x00000000 ;; color_03
+    i32.const 0x00000000 ;; color_04
+    i32.const 0x00000000 ;; color_05
+    i32.const 134720     ;; memory_address
+    call $render_color_indexed_sprite
+  )
 
   ;; game loop
   (func (export "game_loop")  
@@ -1705,60 +1882,15 @@
       call $scene_game
 	end
 
-    ;; maze maker feature coming soon
     global.get $scene_index
 	i32.const 3
 	i32.eq
 	if
-      ;; maze_maker_scene
-      ;; TODO: Write logic for this scene
-      i32.const 0x20
-      i32.const 0x20
-      i32.const 0x20
-      call $rgb_fill_screen
+      call $scene_maze_maker
 	end
 
-    ;; render pointer
-    global.get $timer_30
-    i32.const 14
-    i32.lt_s
-    if
-      i32.const 144942
-      i32.load8_u
-      i32.const 8
-      i32.sub
-      i32.const 144943
-      i32.load8_u
-      i32.const 8
-      i32.sub
-      i32.const 16
-      i32.const 16
-      i32.const 0xFF000000
-      i32.const 0xFF00FFFF
-      i32.const 0x00000000
-      i32.const 0x00000000
-      i32.const 0x00000000
-      i32.const 128000
-      call $render_color_indexed_sprite
-    else
-      i32.const 144942
-      i32.load8_u
-      i32.const 8
-      i32.sub
-      i32.const 144943
-      i32.load8_u
-      i32.const 8
-      i32.sub
-      i32.const 16
-      i32.const 16
-      i32.const 0xFF000000
-      i32.const 0xFF00FFFF
-      i32.const 0x00000000
-      i32.const 0x00000000
-      i32.const 0x00000000
-      i32.const 128256
-      call $render_color_indexed_sprite
-    end
+    call $render_pointer
+
     ;; todo work on timers
     global.get $timer_30
     i32.const 29
@@ -2378,7 +2510,7 @@
     "\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\01"
     "\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\01"
     "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01"
-    ;; 134080 | maze_maker_play_button_40x16 = 640 bytes
+    ;; 134080 | maze_maker_load_button_40x16 = 640 bytes
     "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01"
     "\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\01"
     "\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\01"
@@ -2395,7 +2527,7 @@
     "\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\01"
     "\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\01"
     "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01"
-    ;; 134720 | maze_maker_play_button_40x16 = 640 bytes
+    ;; 134720 | maze_maker_share_button_40x16 = 640 bytes
     "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01"
     "\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\01"
     "\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\01"
