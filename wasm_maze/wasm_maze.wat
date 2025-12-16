@@ -1780,10 +1780,10 @@
     call $rgb_fill_screen
 
     ;; close button
-    i32.const 0          ;; dx
-    i32.const 0          ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000000 ;; dx
+    i32.const 0x00000000 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF0000FF ;; color_01
     i32.const 0xFFFFFFFF ;; color_02
     i32.const 0xFF000000 ;; color_03
@@ -1796,10 +1796,10 @@
     call $render_maze_maker_map_background
 
     ;; up arrow
-    i32.const 56         ;; dx
-    i32.const 8          ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000038 ;; dx
+    i32.const 0x00000008 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF000000 ;; color_01
     i32.const 0xFF00FF00 ;; color_02
     i32.const 0xFF000000 ;; color_03
@@ -1808,10 +1808,10 @@
     i32.const 128512     ;; memory_address
     call $render_color_indexed_sprite
     ;; down arrow
-    i32.const 56         ;; dx
-    i32.const 104        ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000038 ;; dx
+    i32.const 0x00000068 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF000000 ;; color_01
     i32.const 0xFF00FF00 ;; color_02
     i32.const 0xFF000000 ;; color_03
@@ -1820,10 +1820,10 @@
     i32.const 128768     ;; memory_address
     call $render_color_indexed_sprite
     ;; left arrow
-    i32.const 8          ;; dx
-    i32.const 56         ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000008 ;; dx
+    i32.const 0x00000038 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF000000 ;; color_01
     i32.const 0xFF00FF00 ;; color_02
     i32.const 0xFF000000 ;; color_03
@@ -1832,10 +1832,10 @@
     i32.const 129024     ;; memory_address
     call $render_color_indexed_sprite
     ;; right arrow
-    i32.const 104        ;; dx
-    i32.const 56         ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000068 ;; dx
+    i32.const 0x00000038 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF000000 ;; color_01
     i32.const 0xFF00FF00 ;; color_02
     i32.const 0xFF000000 ;; color_03
@@ -1843,13 +1843,13 @@
     i32.const 0xFF000000 ;; color_05
     i32.const 129280     ;; memory_address
     call $render_color_indexed_sprite
-    ;; ???
+    ;; todo: make a representation of erase
 
     ;; sweet_rock
-    i32.const 136        ;; dx
-    i32.const 8          ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000088 ;; dx
+    i32.const 0x00000008 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF000000 ;; color_01
     i32.const 0xFFF5F5FF ;; color_02
     i32.const 0xFF0000FF ;; color_03
@@ -1859,10 +1859,10 @@
     call $render_color_indexed_sprite
 
     ;; player_idle
-    i32.const 120        ;; dx
-    i32.const 24         ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000078 ;; dx
+    i32.const 0x00000018 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF000000 ;; color_01
     i32.const 0xFFF04F65 ;; color_02
     i32.const 0xFFFFFFFF ;; color_03
@@ -1872,10 +1872,10 @@
     call $render_color_indexed_sprite
 
     ;; wasm_block
-    i32.const 136        ;; dx
-    i32.const 24         ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000088 ;; dx
+    i32.const 0x00000018 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFFF04F65 ;; color_01
     i32.const 0xFFF5F5FF ;; color_02
     i32.const 0xFFFFFFFF ;; color_03
@@ -1885,10 +1885,10 @@
     call $render_color_indexed_sprite
 
     ;; key_red
-    i32.const 120        ;; dx
-    i32.const 80         ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000078 ;; dx
+    i32.const 0x00000050 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF0000FF ;; color_01
     i32.const 0xFFFFFFFF ;; color_02
     i32.const 0x00000000 ;; color_03
@@ -1898,10 +1898,10 @@
     call $render_color_indexed_sprite
 
     ;; lock_red
-    i32.const 136        ;; dx
-    i32.const 80         ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000088 ;; dx
+    i32.const 0x00000050 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF0000FF ;; color_01
     i32.const 0xFF00FFFF ;; color_02
     i32.const 0x00000000 ;; color_03
@@ -1911,10 +1911,10 @@
     call $render_color_indexed_sprite
 
     ;; key_green
-    i32.const 120        ;; dx
-    i32.const 96         ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000078 ;; dx
+    i32.const 0x00000060 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF008000 ;; color_01
     i32.const 0xFFFFFFFF ;; color_02
     i32.const 0x00000000 ;; color_03
@@ -1924,10 +1924,10 @@
     call $render_color_indexed_sprite
 
     ;; lock_green
-    i32.const 136        ;; dx
-    i32.const 96         ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000088 ;; dx
+    i32.const 0x00000060 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF008000 ;; color_01
     i32.const 0xFF00FFFF ;; color_02
     i32.const 0x00000000 ;; color_03
@@ -1937,10 +1937,10 @@
     call $render_color_indexed_sprite
 
     ;; key_blue
-    i32.const 120        ;; dx
-    i32.const 112        ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000078 ;; dx
+    i32.const 0x00000070 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFFFF0000 ;; color_01
     i32.const 0xFFFFFFFF ;; color_02
     i32.const 0x00000000 ;; color_03
@@ -1950,10 +1950,10 @@
     call $render_color_indexed_sprite
 
     ;; lock_blue
-    i32.const 136        ;; dx
-    i32.const 112        ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000088 ;; dx
+    i32.const 0x00000070 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFFFF0000 ;; color_01
     i32.const 0xFF00FFFF ;; color_02
     i32.const 0x00000000 ;; color_03
@@ -1963,10 +1963,10 @@
     call $render_color_indexed_sprite
 
     ;; maze_maker_play_button
-    i32.const 8          ;; dx
-    i32.const 136        ;; dy
-    i32.const 40         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000008 ;; dx
+    i32.const 0x00000088 ;; dy
+    i32.const 0x00000028 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF808080 ;; color_01
     i32.const 0xFFFFFFFF ;; color_02
     i32.const 0x00000000 ;; color_03
@@ -1976,10 +1976,10 @@
     call $render_color_indexed_sprite
 
     ;; maze_maker_load_button
-    i32.const 60         ;; dx
-    i32.const 136        ;; dy
-    i32.const 40         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x0000003C ;; dx
+    i32.const 0x00000088 ;; dy
+    i32.const 0x00000028 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF808080 ;; color_01
     i32.const 0xFFFFFFFF ;; color_02
     i32.const 0x00000000 ;; color_03
@@ -1989,34 +1989,34 @@
     call $render_color_indexed_sprite
 
     ;; maze_maker_share_button
-    i32.const 112        ;; dx
-    i32.const 136        ;; dy
-    i32.const 40         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000070 ;; dx
+    i32.const 0x00000088 ;; dy
+    i32.const 0x00000028 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF808080 ;; color_01
     i32.const 0xFFFFFFFF ;; color_02
     i32.const 0x00000000 ;; color_03
     i32.const 0x00000000 ;; color_04
     i32.const 0x00000000 ;; color_05
-    i32.const 134720     ;; memory_address
+    i32.const 0x00020E40 ;; memory_address
     call $render_color_indexed_sprite
 
     ;; todo: make a better way to show maze_maker_selected_indicator
-    i32.const 136        ;; dx
-    i32.const 8          ;; dy
-    i32.const 16         ;; dw
-    i32.const 16         ;; dh
+    i32.const 0x00000088 ;; dx
+    i32.const 0x00000008 ;; dy
+    i32.const 0x00000010 ;; dw
+    i32.const 0x00000010 ;; dh
     i32.const 0xFF0000FF
     i32.const 0xFF000080
     global.get $timer_60
-    i32.const 29
+    i32.const 0x0000001D
     i32.lt_s
     select               ;; color_01
     i32.const 0x00000000 ;; color_02
     i32.const 0x00000000 ;; color_03
     i32.const 0x00000000 ;; color_04
     i32.const 0x00000000 ;; color_05
-    i32.const 145203     ;; memory_address
+    i32.const 0x00023733 ;; memory_address
     call $render_color_indexed_sprite
 
     ;; todo: make a better way to exit maze edit mode
@@ -2116,7 +2116,7 @@
     end
   )
 
-  (data (i32.const 102400)
+  (data (i32.const 0x00019000)
     ;; 102400 | title_160x160 = 25600 bytes      
     "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01"
     "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01"
