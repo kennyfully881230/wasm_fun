@@ -98,8 +98,6 @@
 
      const wasmBuffer = instance.exports.memory.buffer
      const imageData = new ImageData(new Uint8ClampedArray(wasmBuffer, 0, 102400), 160, 160)
-     const pixelData = new Uint8Array(wasmBuffer)
-     const sliceData = pixelData.slice(0, 102400)
      const pointerData = new Uint8ClampedArray(wasmBuffer, 144942, 2)
      const frameTime = 1000 / 60
      let lastTime = performance.now()
@@ -148,18 +146,32 @@
     // VERTEX POSITION
     const vertexBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0,]), gl.STATIC_DRAW)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1.0,  1.0, // Top Left
+       1.0,  1.0, // Top Right
+      -1.0, -1.0, // Bottom Left
+      -1.0, -1.0, // Bottom Left
+       1.0,  1.0, // Top Right
+       1.0, -1.0  // Bottom Right
+    ]), gl.STATIC_DRAW)
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0)
     gl.enableVertexAttribArray(0)
 
     // TEXTURE COORDINATE BUFFER
     const texCoordBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.5, 1.0, 1.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 0.0]), gl.STATIC_DRAW)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      0.0, 0.0, // Top Left
+      1.0, 0.0, // Top Right
+      0.0, 1.0, // Bottom Left
+      0.0, 1.0, // Bottom Left
+      1.0, 0.0, // Top Right
+      1.0, 1.0  // Bottom Right
+    ]), gl.STATIC_DRAW)
     gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0)
     gl.enableVertexAttribArray(1)
 
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+    // gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
     const texture = gl.createTexture()
     gl.bindTexture(gl.TEXTURE_2D, texture)
     // webgl2 end
