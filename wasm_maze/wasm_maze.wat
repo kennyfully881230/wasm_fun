@@ -28,15 +28,15 @@
     global.get $player_lucky
     i32.const 1
     i32.eq
-    if
+    if (result i32 i32 i32)
       i32.const 0xFF000080
       i32.const 0xFF0000FF
       i32.const 0xFF00FFFF
-      return
+    else
+      i32.const 0xFF000000
+      i32.const 0xFFF04F65
+      i32.const 0xFFFFFFFF
     end
-    i32.const 0xFF000000
-    i32.const 0xFFF04F65
-    i32.const 0xFFFFFFFF
   )
 
   (func $check_item_on_map (param $i i32) (param $item_index i32) (result i32)
@@ -564,7 +564,30 @@
       i32.const 1
       i32.eq
       if
-        local.get $i
+        local.get $i         ;; sweet_rock_dx
+        i32.const 20
+        i32.rem_s
+        i32.const 16
+        i32.mul
+        i32.const 72 ;; cam_x
+        i32.add
+        global.get $player_x
+        i32.sub
+        local.get $i         ;; sweet_rock_dy
+        f32.convert_i32_s
+        i32.const 20
+        f32.convert_i32_s
+        f32.div
+        f32.floor
+        i32.trunc_f32_s
+        i32.const 16
+        i32.mul
+        i32.const 72 ;; cam_y
+        i32.add
+        global.get $player_y
+        i32.sub
+        i32.const 16         ;; sweet_rock_dw
+        i32.const 16         ;; sweet_rock_dh
         i32.const 0xFF000000     ;; color_01
         i32.const 0xFFF5F5FF        
         i32.const 0xFFF7F7FF
@@ -584,7 +607,8 @@
         call $rgb_color_mix     ;; color_03
         i32.const 0xFFF04F65    ;; color_04
         i32.const 0xFF9CE1FF    ;; color_05
-        call $render_sweet_rock
+        i32.const 129536    ;; data_address
+        call $render_color_indexed_sprite
       end
       ;; check for wasm_block
       i32.const 400
@@ -598,7 +622,30 @@
       i32.const 2
       i32.eq
       if
-        local.get $i
+        local.get $i         ;; wasm_block_dx
+        i32.const 20
+        i32.rem_s
+        i32.const 16
+        i32.mul
+        i32.const 72 ;; cam_x
+        i32.add
+        global.get $player_x
+        i32.sub
+        local.get $i         ;; wasm_block_dy
+        f32.convert_i32_s
+        i32.const 20
+        f32.convert_i32_s
+        f32.div
+        f32.floor
+        i32.trunc_f32_s
+        i32.const 16
+        i32.mul
+        i32.const 72 ;; cam_y
+        i32.add
+        global.get $player_y
+        i32.sub
+        i32.const 16         ;; wasm_block_dw
+        i32.const 16         ;; wasm_block_dh
         i32.const 0xFFFF0000
         i32.const 0xFFF04F65
         global.get $timer_60
@@ -607,7 +654,10 @@
         select ;; color_01
         i32.const 0xFFFFFFFF ;; color_02
         i32.const 0x00000000 ;; color_03
-        call $render_wasm_block
+        i32.const 0x00000000 ;; color_04
+        i32.const 0x00000000 ;; color_05
+        i32.const 132352     ;; data_address
+        call $render_color_indexed_sprite
       end
       ;; check for key_red
       i32.const 400
@@ -794,41 +844,6 @@
     end
   )
 
-  (func $render_player
-    global.get $timer_30
-    i32.const 14
-    i32.lt_s
-    if
-      i32.const 72 ;; cam_x
-      i32.const 72 ;; cam_y
-      i32.const 16
-      i32.const 16
-      call $check_for_lucky
-      i32.const 0xFF0000FF
-      i32.const 0x00000000
-      i32.const 129792
-      global.get $player_mode
-      i32.const 512
-      i32.mul
-      i32.add
-      call $render_color_indexed_sprite
-    else
-      i32.const 72 ;; cam_x
-      i32.const 72 ;; cam_y
-      i32.const 16
-      i32.const 16
-      call $check_for_lucky
-      i32.const 0xFF0000FF
-      i32.const 0x00000000
-      i32.const 130048 
-      global.get $player_mode
-      i32.const 512
-      i32.mul
-      i32.add
-      call $render_color_indexed_sprite
-    end
-  )
-
   (func $render_pointer
     global.get $timer_30
     i32.const 14
@@ -870,84 +885,6 @@
       i32.const 128256
       call $render_color_indexed_sprite
     end
-  )
-
-  (func $render_sweet_rock
-    (param $i i32)
-    (param $color_01 i32)
-    (param $color_02 i32)
-    (param $color_03 i32)
-    (param $color_04 i32)
-    (param $color_05 i32)
-    local.get $i         ;; sweet_rock_dx
-    i32.const 20
-    i32.rem_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_x
-    i32.add
-    global.get $player_x
-    i32.sub
-    local.get $i         ;; sweet_rock_dy
-    f32.convert_i32_s
-    i32.const 20
-    f32.convert_i32_s
-    f32.div
-    f32.floor
-    i32.trunc_f32_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_y
-    i32.add
-    global.get $player_y
-    i32.sub
-    i32.const 16         ;; sweet_rock_dw
-    i32.const 16         ;; sweet_rock_dh
-    local.get $color_01
-    local.get $color_02
-    local.get $color_03
-    local.get $color_04 ;; color_04
-    local.get $color_05 ;; color_05
-    i32.const 129536    ;; data_address
-    call $render_color_indexed_sprite
-  )
-
-  (func $render_wasm_block
-    (param $i i32)
-    (param $color_01 i32)
-    (param $color_02 i32)
-    (param $color_03 i32)
-    local.get $i         ;; wasm_block_dx
-    i32.const 20
-    i32.rem_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_x
-    i32.add
-    global.get $player_x
-    i32.sub
-    local.get $i         ;; wasm_block_dy
-    f32.convert_i32_s
-    i32.const 20
-    f32.convert_i32_s
-    f32.div
-    f32.floor
-    i32.trunc_f32_s
-    i32.const 16
-    i32.mul
-    i32.const 72 ;; cam_y
-    i32.add
-    global.get $player_y
-    i32.sub
-    i32.const 16         ;; wasm_block_dw
-    i32.const 16         ;; wasm_block_dh
-    local.get $color_01
-    local.get $color_02
-    local.get $color_03
-    i32.const 0x00000000 ;; color_04
-    i32.const 0x00000000 ;; color_05
-    i32.const 132352     ;; data_address
-    call $render_color_indexed_sprite
   )
 
   (func $rgb_color_mix
@@ -1606,7 +1543,41 @@
     call $rgb_fill_screen
 
     call $render_map
-    call $render_player
+
+    ;; render player
+    global.get $timer_30
+    i32.const 14
+    i32.lt_s
+    if
+      i32.const 72 ;; cam_x
+      i32.const 72 ;; cam_y
+      i32.const 16
+      i32.const 16
+      call $check_for_lucky
+      i32.const 0xFF0000FF
+      i32.const 0x00000000
+      i32.const 129792
+      global.get $player_mode
+      i32.const 512
+      i32.mul
+      i32.add
+      call $render_color_indexed_sprite
+    else
+      i32.const 72 ;; cam_x
+      i32.const 72 ;; cam_y
+      i32.const 16
+      i32.const 16
+      call $check_for_lucky
+      i32.const 0xFF0000FF
+      i32.const 0x00000000
+      i32.const 130048 
+      global.get $player_mode
+      i32.const 512
+      i32.mul
+      i32.add
+      call $render_color_indexed_sprite
+    end
+
     i32.const 144944
     i32.load8_u
     i32.const 1
