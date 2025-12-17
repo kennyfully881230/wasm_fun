@@ -30,6 +30,21 @@
 
     canvas {
       image-rendering: pixelated;
+      display: none;
+    }
+
+    .active {
+      display: block;
+    }
+
+    .cpu_gpu_button {
+      background-color: #654FF0;
+      border: none;
+      color: #FFFFFFFF;
+      padding: 8px;
+      position: fixed;
+      right: 0px;
+      top: 0px;
     }
 
     @media (orientation: landscape) {
@@ -48,11 +63,16 @@
 </head>
 
 <body>
-  <canvas width="160" height="160"></canvas>
+  <canvas class="cpu_canvas active" width="160" height="160"></canvas>
+  <canvas class="gpu_canvas" width="160" height="160"></canvas>
+  <button class="cpu_gpu_button">CPU MODE</button>
 
   <script>
-     const canvas = document.querySelector('canvas')
-     const ctx = canvas.getContext('2d')
+     const cpuGpuButton = document.querySelector('.cpu_gpu_button') 
+     const cpuCanvas = document.querySelector('.cpu_canvas')
+     const ctx = cpuCanvas.getContext('2d')
+     const gpuCanvas = document.querySelector('.gpu_canvas')
+     const gl = gpuCanvas.getContext('webgl2')
      const pointerMap = new Map()
      const AudioContext = window.AudioContext || window.webkitAudioContext
      const audioContext = new AudioContext()
@@ -78,12 +98,73 @@
 
      const wasmBuffer = instance.exports.memory.buffer
      const imageData = new ImageData(new Uint8ClampedArray(wasmBuffer, 0, 102400), 160, 160)
+     const pixelData = new Uint8Array(wasmBuffer)
+     const sliceData = pixelData.slice(0, 102400)
      const pointerData = new Uint8ClampedArray(wasmBuffer, 144942, 2)
      const frameTime = 1000 / 60
      let lastTime = performance.now()
      let activeMousePointer = false
+
+      // webgl2 start
+      const vertexShaderSource = `#version 300 es
+      layout(location=0) in vec4 aPosition;
+      layout(location=1) in vec2 aTexCoord;
+
+      out vec2 vTexCoord;
+
+      void main() {
+        vTexCoord = aTexCoord;
+        gl_Position = aPosition;
+      }`
+
+      const fragmentShaderSource = `#version 300 es
+      precision mediump float;
+
+      in vec2 vTexCoord;
+      uniform sampler2D uSampler;
+      out vec4 fragColor;
+
+      void main() {
+        fragColor = texture(uSampler, vTexCoord);
+      }`
+
+    const program = gl.createProgram()
+
+    // VERTEX SHADER SETUP
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)
+    gl.shaderSource(vertexShader, vertexShaderSource)
+    gl.compileShader(vertexShader)
+    gl.attachShader(program, vertexShader)
+
+    // FRAGMENT SHADER SETUP
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)
+    gl.shaderSource(fragmentShader, fragmentShaderSource)
+    gl.compileShader(fragmentShader)
+    gl.attachShader(program, fragmentShader)
+
+    gl.linkProgram(program)
+    gl.useProgram(program)
+
+    // VERTEX POSITION
+    const vertexBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0,]), gl.STATIC_DRAW)
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0)
+    gl.enableVertexAttribArray(0)
+
+    // TEXTURE COORDINATE BUFFER
+    const texCoordBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.5, 1.0, 1.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 0.0]), gl.STATIC_DRAW)
+    gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0)
+    gl.enableVertexAttribArray(1)
+
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+    const texture = gl.createTexture()
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+    // webgl2 end
     
-     const animate = (currentTime) => {
+    const animate = (currentTime) => {
       const deltaTime = currentTime - lastTime
 
       if (deltaTime >= frameTime) {
@@ -91,15 +172,43 @@
         pointerData[0] = pointerMap.get('x')
         pointerData[1] = pointerMap.get('y')
         instance.exports.game_loop()
-        ctx.putImageData(imageData, 0, 0)
+
+        if (cpuCanvas.classList.contains('active')) {
+          ctx.putImageData(imageData, 0, 0)
+        } else {
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 160, 160, 0, gl.RGBA, gl.UNSIGNED_BYTE, imageData)
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+          gl.drawArrays(gl.TRIANGLES, 0, 6)
+        }
       }
 
       requestAnimationFrame(animate)
-     }
+    }
+
+    const toggleCpuGpu = (e) => {
+      e.preventDefault()
+      if (cpuCanvas.classList.contains('active')) {
+        cpuCanvas.classList.remove('active')
+        gpuCanvas.classList.add('active')
+        cpuGpuButton.innerText = 'GPU MODE'
+      } else {
+        gpuCanvas.classList.remove('active')
+        cpuCanvas.classList.add('active')
+        cpuGpuButton.innerText = 'CPU MODE'
+      }
+    }
 
     const setPointer = (e) => {
       e.preventDefault()
-      const rect = canvas.getBoundingClientRect()
+      let rect = null;
+      
+      if (cpuCanvas.classList.contains('active')) {
+        rect = cpuCanvas.getBoundingClientRect()
+      } else {
+        rect = gpuCanvas.getBoundingClientRect()
+      }
+
       const width = rect.width
       const height = rect.height
 
@@ -120,13 +229,19 @@
       pointerMap.set('y', 255)
     }
 
-    canvas.addEventListener('contextmenu', (e) => e.preventDefault())
-    canvas.addEventListener('pointerdown', setPointer)
-    canvas.addEventListener('pointermove', setPointer)
-    canvas.addEventListener('pointerup', unsetPointer)
-    canvas.addEventListener('pointercancel', unsetPointer)
-    canvas.addEventListener('pointerout', unsetPointer)
-
+    cpuGpuButton.addEventListener('pointerdown', toggleCpuGpu)
+    cpuCanvas.addEventListener('contextmenu', (e) => e.preventDefault())
+    cpuCanvas.addEventListener('pointerdown', setPointer)
+    cpuCanvas.addEventListener('pointermove', setPointer)
+    cpuCanvas.addEventListener('pointerup', unsetPointer)
+    cpuCanvas.addEventListener('pointercancel', unsetPointer)
+    cpuCanvas.addEventListener('pointerout', unsetPointer)
+    gpuCanvas.addEventListener('contextmenu', (e) => e.preventDefault())
+    gpuCanvas.addEventListener('pointerdown', setPointer)
+    gpuCanvas.addEventListener('pointermove', setPointer)
+    gpuCanvas.addEventListener('pointerup', unsetPointer)
+    gpuCanvas.addEventListener('pointercancel', unsetPointer)
+    gpuCanvas.addEventListener('pointerout', unsetPointer)
     pointerMap.set('x', 255)
     pointerMap.set('y', 255)
     requestAnimationFrame(animate)
