@@ -38,11 +38,25 @@
     }
 
     .cpu_gpu_button {
-      background-color: #654FF0;
+      background-color: #654FF080;
       border: none;
       color: #FFFFFFFF;
+      height: 28px;
       padding: 8px;
       position: fixed;
+      width: 108px;
+      right: 0px;
+      top: 28px;
+    }
+
+    .fps_button {
+      background-color: #654FF080;
+      border: none;
+      color: #FFFFFFFF;
+      height: 28px;
+      padding: 8px;
+      position: fixed;
+      width: 108px;
       right: 0px;
       top: 0px;
     }
@@ -65,9 +79,11 @@
 <body>
   <canvas class="cpu_canvas active" width="160" height="160"></canvas>
   <canvas class="gpu_canvas" width="160" height="160"></canvas>
+  <button class="fps_button">60 FPS</button>
   <button class="cpu_gpu_button">CPU MODE</button>
 
   <script>
+     const fpsButton = document.querySelector('.fps_button') 
      const cpuGpuButton = document.querySelector('.cpu_gpu_button') 
      const cpuCanvas = document.querySelector('.cpu_canvas')
      const ctx = cpuCanvas.getContext('2d')
@@ -100,7 +116,18 @@
     
      const imageData = new ImageData(new Uint8ClampedArray(wasmBuffer, 0, 102400), 160, 160)
      const pointerData = new Uint8ClampedArray(wasmBuffer, 144942, 2)
-     const frameTime = 1000 / 60
+
+     const fpsModes = [
+      { name: ' 30 FPS' , fps: 1000 /  30},
+      { name: ' 60 FPS' , fps: 1000 /  60},
+      { name: ' 90 FPS' , fps: 1000 /  90},
+      { name: '120 FPS' , fps: 1000 / 120},
+    ]
+
+    let currentFpsMode = 1
+
+    let frameTime = fpsModes[currentFpsMode].fps
+
      let lastTime = performance.now()
      let activeMousePointer = false
 
@@ -199,6 +226,17 @@
       requestAnimationFrame(animate)
     }
 
+    const changeFps = (e) => {
+      e.preventDefault()
+      if (currentFpsMode >= fpsModes.length - 1) {
+        currentFpsMode = 0
+      } else {
+        currentFpsMode++ 
+      }
+      fpsButton.innerText = fpsModes[currentFpsMode].name
+      frameTime = fpsModes[currentFpsMode].fps
+    }
+
     const toggleCpuGpu = (e) => {
       e.preventDefault()
       if (cpuCanvas.classList.contains('active')) {
@@ -242,6 +280,7 @@
       pointerMap.set('y', 255)
     }
 
+    fpsButton.addEventListener('pointerdown', changeFps)
     cpuGpuButton.addEventListener('pointerdown', toggleCpuGpu)
     cpuCanvas.addEventListener('contextmenu', (e) => e.preventDefault())
     cpuCanvas.addEventListener('pointerdown', setPointer)
