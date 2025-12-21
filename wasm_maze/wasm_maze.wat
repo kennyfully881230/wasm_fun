@@ -116,7 +116,7 @@
     end
   )
   
-  (func $collision_checks (local $i i32)
+  (func $collision_checks (local $i i32) (local $j i32)
     loop $loop
       ;; check if a sweet_rock collides
       local.get $i
@@ -208,6 +208,107 @@
         i32.const 2
         local.get $i
         call $collision_check_lock
+      end
+      ;; check if a fake_sweet_rock collides
+      local.get $i
+      i32.const 0x0F
+      call $check_item_on_map
+      if
+        local.get $i
+        call $player_to_object_collision
+        if
+          i32.const 0x00000309 ;; sound tone
+          call $play_data_sound
+          call $pushback_player
+          i32.const 400
+          global.get $maze_index
+          i32.mul
+          i32.const 154688 ;; memory_address_pointer_for_mazes
+          i32.add
+          local.get $i
+          i32.add        
+          i32.const 0x10
+          i32.store8
+          ;; spawn the heart
+          i32.const 0
+          local.set $j
+          loop $loop_j
+            i32.const 400
+            global.get $maze_index
+            i32.mul
+            i32.const 154688 ;; memory_address_pointer_for_mazes
+            i32.add
+            local.get $j
+            i32.add        
+            i32.load8_u
+            i32.const 0x11 ;; if_heart
+            i32.eq
+            if
+              i32.const 400
+              global.get $maze_index
+              i32.mul
+              i32.const 154688 ;; memory_address_pointer_for_mazes
+              i32.add
+              local.get $j
+              i32.add        
+              i32.const 0x12
+              i32.store8
+            end
+            local.get $j
+            i32.const 1
+            i32.add
+            local.set $j
+            local.get $j
+            i32.const 400 ;; max amount of items on a map
+            i32.lt_s
+            br_if $loop_j
+          end
+        end
+      end
+      ;; check if a fake_sweet_rock_activated collides
+      local.get $i
+      i32.const 0x10
+      call $check_item_on_map
+      if
+        local.get $i
+        call $player_to_object_collision
+        if
+          i32.const 0x00000309 ;; sound tone
+          call $play_data_sound
+          call $pushback_player
+        end
+      end
+      ;; check if a heart collides
+      local.get $i
+      i32.const 0x12
+      call $check_item_on_map
+      if
+        local.get $i
+        call $player_to_object_collision
+        if
+          i32.const 0x00000309 ;; sound tone
+          call $play_data_sound
+          ;; add trophy to the maze button if maze level is less than 8
+          global.get $maze_index
+          i32.const 8
+          i32.lt_s
+          if
+            i32.const 158304 ;; address for heart trophies
+            global.get $maze_index
+            i32.add
+            i32.const 1
+            i32.store8
+          end
+            i32.const 400
+            global.get $maze_index
+            i32.mul
+            i32.const 154688 ;; memory_address_pointer_for_mazes
+            i32.add
+            local.get $i
+            i32.add        
+            i32.const 0x11
+            i32.store8
+        end
       end
       ;; increment i
       local.get $i
@@ -781,6 +882,189 @@
         i32.const 0x00000000 ;; color_03
         call $render_lock
       end
+      ;; check for fake_sweet_rock
+      i32.const 400
+      global.get $maze_index
+      i32.mul
+      i32.const 154688   
+      i32.add
+      local.get $i
+      i32.add
+      i32.load8_u
+      i32.const 0x0F
+      i32.eq
+      if
+        local.get $i
+        i32.const 20
+        i32.rem_s
+        i32.const 16
+        i32.mul
+        i32.const 72          ;; cam_x
+        i32.add
+        global.get $player_x
+        i32.sub               ;; dx
+        local.get $i
+        f32.convert_i32_s
+        i32.const 20
+        f32.convert_i32_s
+        f32.div
+        f32.floor
+        i32.trunc_f32_s
+        i32.const 16
+        i32.mul
+        i32.const 72             ;; cam_y
+        i32.add
+        global.get $player_y
+        i32.sub                  ;; dy
+        i32.const 0x00000010     ;; dw
+        i32.const 0x00000010     ;; dh
+        i32.const 0xFF000000     ;; color_01
+        i32.const 0xFFF5F5FF        
+        i32.const 0xFFF7F7FF
+        global.get $timer_30
+        i32.const 9
+        i32.lt_s
+        select
+        i32.const 0xFFFFFFFF
+        global.get $timer_30
+        i32.const 19
+        i32.lt_s
+        select                  ;; color_02
+        i32.const 158341
+        i32.load8_u
+        i32.const 0xFF000000
+        i32.or                  ;; color_03
+        i32.const 0xFFF04F65    ;; color_04
+        i32.const 0xFF9CE1FF    ;; color_05
+        i32.const 130560        ;; data_address
+        call $render_color_indexed_sprite
+      end
+      ;; check for fake_sweet_rock_activated
+      i32.const 400
+      global.get $maze_index
+      i32.mul
+      i32.const 154688   
+      i32.add
+      local.get $i
+      i32.add
+      i32.load8_u
+      i32.const 0x10
+      i32.eq
+      if
+        local.get $i
+        i32.const 20
+        i32.rem_s
+        i32.const 16
+        i32.mul
+        i32.const 72          ;; cam_x
+        i32.add
+        global.get $player_x
+        i32.sub               ;; dx
+        local.get $i
+        f32.convert_i32_s
+        i32.const 20
+        f32.convert_i32_s
+        f32.div
+        f32.floor
+        i32.trunc_f32_s
+        i32.const 16
+        i32.mul
+        i32.const 72             ;; cam_y
+        i32.add
+        global.get $player_y
+        i32.sub                  ;; dy
+        i32.const 0x00000010     ;; dw
+        i32.const 0x00000010     ;; dh
+        i32.const 0xFF000000     ;; color_01
+        i32.const 158340
+        i32.load8_u
+        i32.const 16
+        i32.shl
+        i32.sub
+        i32.const 158340
+        i32.load8_u
+        i32.add
+        i32.const 0xFFF5F5FF        
+        i32.const 0xFFF7F7FF
+        global.get $timer_30
+        i32.const 9
+        i32.lt_s
+        select
+        i32.const 0xFFFFFFFF
+        global.get $timer_30
+        i32.const 19
+        i32.lt_s
+        select                  ;; color_02
+        i32.const 158341
+        i32.load8_u
+        i32.const 0xFF000010
+        i32.shl
+        i32.const 0xFF000000
+        i32.or                  ;; color_03
+        i32.const 0xFFF04F65    ;; color_04
+        i32.const 0xFFFF8080    ;; color_05
+        i32.const 130560        ;; data_address
+        call $render_color_indexed_sprite
+      end
+      ;; check for heart
+      i32.const 400
+      global.get $maze_index
+      i32.mul
+      i32.const 154688   
+      i32.add
+      local.get $i
+      i32.add
+      i32.load8_u
+      i32.const 0x12
+      i32.eq
+      if
+        local.get $i
+        i32.const 20
+        i32.rem_s
+        i32.const 16
+        i32.mul
+        i32.const 72          ;; cam_x
+        i32.add
+        global.get $player_x
+        i32.sub               ;; dx
+        local.get $i
+        f32.convert_i32_s
+        i32.const 20
+        f32.convert_i32_s
+        f32.div
+        f32.floor
+        i32.trunc_f32_s
+        i32.const 16
+        i32.mul
+        i32.const 72         ;; cam_y
+        i32.add
+        global.get $player_y
+        i32.sub              ;; dy
+        i32.const 0x00000010 ;; dw
+        i32.const 0x00000010 ;; dh
+        i32.const 0xFF000000 ;; color_01
+        i32.const 0xFF0000FF ;; color_02
+        i32.const 0xFFFFFFFF ;; color_03
+        i32.const 0x00000000 ;; color_04
+        i32.const 0x00000000 ;; color_05
+        i32.const 128512     ;; memory_address_f1
+        i32.const 128768     ;; memory_address_f2
+        i32.const 129024     ;; memory_address_f3
+        i32.const 129280     ;; memory_address_f4
+        global.get $timer_60
+        i32.const 44
+        i32.lt_s
+        select
+        global.get $timer_60
+        i32.const 29
+        i32.lt_s
+        select
+        global.get $timer_60
+        i32.const 14
+        i32.lt_s
+        select
+        call $render_color_indexed_sprite
+      end
       ;; increment i
       local.get $i
       i32.const 1
@@ -1016,6 +1300,42 @@
             i32.const 152000 
             call $render_color_indexed_sprite
           end
+          ;; heart trophy (only renders if unloacked)
+          i32.const 158304
+          local.get $i
+          i32.add
+          i32.load8_u
+          i32.const 1
+          i32.eq
+          if
+            i32.const 17
+            local.get $i
+            i32.const 3
+            i32.rem_s
+            i32.const 48
+            i32.mul
+            i32.add
+            i32.const 39
+            local.get $i
+            f32.convert_i32_s
+            i32.const 3
+            f32.convert_i32_s
+            f32.div
+            f32.floor
+            i32.trunc_f32_s
+            i32.const 48
+            i32.mul
+            i32.add
+            i32.const 8
+            i32.const 8
+            i32.const 0xFF0000FF
+            i32.const 0x00000000
+            i32.const 0x00000000
+            i32.const 0x00000000
+            i32.const 0x00000000
+            i32.const 152064
+            call $render_color_indexed_sprite
+          end
           ;; check col
           ;; pointer
           i32.const 158344
@@ -1077,7 +1397,7 @@
                 global.set $player_lucky
               end
 
-              ;; TODO: set player x and y depending on maze
+              ;; set player x and y depending on maze
               local.get $i
               i32.const 0
               i32.eq
@@ -1275,6 +1595,42 @@
             i32.const 152000             
             call $render_color_indexed_sprite
           end
+          ;; heart trophy (only renders if unloacked)
+          i32.const 158304
+          global.get $maze_index
+          i32.add
+          i32.load8_u
+          i32.const 1
+          i32.eq
+          if
+            i32.const 17
+            global.get $maze_index
+            i32.const 3
+            i32.rem_s
+            i32.const 48
+            i32.mul
+            i32.add
+            i32.const 39
+            global.get $maze_index
+            f32.convert_i32_s
+            i32.const 3
+            f32.convert_i32_s
+            f32.div
+            f32.floor
+            i32.trunc_f32_s
+            i32.const 48
+            i32.mul
+            i32.add
+            i32.const 8
+            i32.const 8
+            i32.const 0xFF0000FF
+            i32.const 0x00000000
+            i32.const 0x00000000
+            i32.const 0x00000000
+            i32.const 0x00000000
+            i32.const 152064
+            call $render_color_indexed_sprite
+          end
           global.get $countup
           i32.const 1
           i32.add
@@ -1426,6 +1782,48 @@
         i32.const 0x00000000 ;; color_04
         i32.const 0x00000000 ;; color_05
         i32.const 134336     ;; memory_address
+        call $render_color_indexed_sprite
+      end
+
+      ;; trophy
+      i32.const 158288
+      global.get $maze_index
+      i32.add
+      i32.load8_u
+      i32.const 0x00000001
+      i32.eq
+      if
+        i32.const 0x00000000 ;; dx
+        i32.const 0x00000098 ;; dy
+        i32.const 0x00000008 ;; dw
+        i32.const 0x00000008 ;; dh
+        i32.const 0xFF000000 ;; color_01
+        i32.const 0x00000000 ;; color_02
+        i32.const 0x00000000 ;; color_03
+        i32.const 0x00000000 ;; color_04
+        i32.const 0x00000000 ;; color_05
+        i32.const 152000     ;; memory_address
+        call $render_color_indexed_sprite
+      end
+
+      ;; heart
+      i32.const 158304
+      global.get $maze_index
+      i32.add
+      i32.load8_u
+      i32.const 0x00000001
+      i32.eq
+      if
+        i32.const 0x00000008 ;; dx
+        i32.const 0x00000098 ;; dy
+        i32.const 0x00000008 ;; dw
+        i32.const 0x00000008 ;; dh
+        i32.const 0xFF0000FF ;; color_01
+        i32.const 0x00000000 ;; color_02
+        i32.const 0x00000000 ;; color_03
+        i32.const 0x00000000 ;; color_04
+        i32.const 0x00000000 ;; color_05
+        i32.const 152064     ;; memory_address
         call $render_color_indexed_sprite
       end
 
@@ -2954,6 +3352,10 @@
     ;; 0C = unlocked lock (red)
     ;; 0D = unlocked lock (green)
     ;; 0E = unlocked lock (blue)
+    ;; 0F = fake_sweet_rock
+    ;; 10 = fake_sweet_rock_activated
+    ;; 11 = heart
+    ;; 12 = heart_activated
   
     ;; 154688 | maze_000_20x20 = 400 bytes
     "\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01"
@@ -2967,9 +3369,9 @@
     "\01\00\00\00\00\00\00\00\00\01" "\01\00\00\00\00\01\00\01\00\01"
     "\01\00\00\00\00\00\00\00\00\01" "\01\00\00\00\00\01\00\01\00\01"
 
-    "\01\05\00\00\00\00\00\00\00\08" "\00\00\00\00\00\01\00\00\00\01"
+    "\01\05\11\00\00\00\00\00\00\08" "\00\00\00\00\00\01\00\00\00\01"
     "\01\01\01\01\01\01\01\01\01\01" "\00\00\00\00\00\01\01\01\01\01"
-    "\01\00\00\00\00\00\00\00\00\01" "\00\00\00\00\00\00\00\00\00\01"
+    "\0F\00\00\00\00\00\00\00\00\01" "\00\00\00\00\00\00\00\00\00\01"
     "\01\01\00\00\01\01\00\00\00\01" "\00\00\00\00\00\00\00\00\00\01"
     "\01\00\00\00\00\01\00\01\01\01" "\00\00\00\00\00\00\00\00\00\01"
     "\01\00\00\00\00\01\00\01\00\07" "\00\00\00\00\00\00\00\00\00\01"
@@ -2979,7 +3381,7 @@
     "\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01"
     ;; 155088 | maze_001_20x20 = 400 bytes
     "\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01"
-    "\01\02\00\00\01\05\00\00\00\01" "\00\01\00\00\00\01\00\04\00\01"
+    "\01\02\00\11\01\05\00\00\00\0F" "\00\01\00\00\00\01\00\04\00\01"
     "\01\01\01\07\01\01\01\00\01\01" "\00\01\00\01\00\01\00\00\00\01"
     "\01\00\00\00\00\00\00\00\00\00" "\00\01\00\01\00\01\01\06\01\01"
     "\01\00\00\00\00\00\00\00\00\00" "\00\01\00\01\00\01\00\00\00\01"
@@ -3004,10 +3406,10 @@
     "\01\04\01\00\00\00\00\00\00\01" "\01\00\00\00\00\00\00\07\03\01"
     "\01\08\01\00\00\00\00\01\00\01" "\01\00\00\00\00\00\00\01\01\01"
     "\01\00\00\00\00\00\00\01\00\01" "\01\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\01\00\01" "\01\00\00\00\00\11\00\00\00\01"
     "\01\00\00\00\00\00\00\01\00\01" "\01\00\00\00\00\00\00\00\00\01"
     "\01\00\00\00\00\00\00\01\00\01" "\01\00\00\00\00\00\00\00\00\01"
-    "\01\00\00\00\00\00\00\01\00\01" "\01\00\00\00\00\00\00\00\00\01"
-    "\01\00\00\00\00\00\00\01\00\01" "\01\01\01\01\01\01\01\01\00\01"
+    "\01\00\00\00\00\00\00\01\00\01" "\01\01\0F\01\01\01\01\01\00\01"
     "\01\00\00\00\00\00\00\01\00\00" "\00\00\00\00\00\00\00\00\00\01"
     "\01\01\01\01\01\01\01\01\00\00" "\00\00\01\01\01\01\01\01\01\01"
 
@@ -3031,14 +3433,14 @@
     "\01\00\01\00\01\00\01\00\00\00" "\00\00\00\00\01\01\00\01\00\01"
     "\01\08\01\00\01\00\01\00\00\00" "\00\00\00\00\01\00\00\01\00\01"
     "\01\02\01\00\01\00\01\00\00\00" "\00\00\00\00\01\00\01\01\00\01"
-    "\01\01\01\00\01\00\01\00\00\00" "\00\00\01\01\01\00\01\01\01\01"
+    "\01\0F\01\00\01\00\01\00\00\00" "\00\00\01\01\01\00\01\01\01\01"
 
     "\01\00\00\00\00\00\01\00\00\00" "\00\00\01\00\00\00\01\05\00\01"
     "\01\00\01\01\01\01\01\01\01\01" "\01\01\01\00\01\01\01\01\07\01"
     "\01\00\00\00\00\00\00\00\00\00" "\00\00\01\00\01\00\01\00\00\01"
     "\01\00\01\00\00\00\00\00\00\00" "\01\00\01\00\01\00\01\00\01\01"
     "\01\01\01\01\00\01\01\01\01\00" "\01\00\01\00\01\00\00\00\00\01"
-    "\01\00\01\00\00\00\01\04\01\00" "\00\01\01\00\01\00\01\01\00\01"
+    "\01\00\01\00\00\00\01\04\01\00" "\00\01\01\11\01\00\01\01\00\01"
     "\01\00\00\00\00\00\01\00\01\01" "\00\00\01\00\01\00\01\00\00\01"
     "\01\00\01\01\00\01\01\00\06\01" "\01\00\01\00\01\00\01\01\01\01"
     "\01\00\01\00\00\00\01\01\00\00" "\00\00\01\00\00\00\00\00\00\01"
@@ -3058,19 +3460,19 @@
     "\01\00\01\00\01\01\00\00\00\00" "\00\00\00\00\00\00\00\01\00\01"
     "\01\00\01\00\00\00\00\01\01\01" "\01\01\01\00\01\01\01\01\00\01"
     "\01\00\01\01\01\01\00\01\00\01" "\00\00\00\00\01\01\00\01\00\01"
-    "\01\00\00\01\00\00\00\01\00\01" "\00\01\01\01\00\00\00\01\00\01"
+    "\01\00\00\01\00\11\00\01\00\01" "\00\01\01\01\00\00\00\01\00\01"
     "\01\00\00\01\00\01\01\01\00\01" "\00\00\00\01\00\01\00\01\04\01"
     "\01\00\01\01\00\00\00\00\00\01" "\01\01\00\01\00\01\00\01\01\01"
     "\01\00\00\01\01\01\01\01\00\01" "\03\01\00\00\00\01\00\00\00\01"
     "\01\00\00\01\00\00\00\01\00\01" "\00\01\01\01\01\01\07\01\01\01"
     "\01\01\00\00\00\01\00\00\00\01" "\00\00\00\00\00\00\00\00\00\01"
-    "\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01"
+    "\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\0F\01\01\01"
     ;; 156688 | maze_005_20x20 = 400 bytes
     "\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01"
-    "\01\01\00\01\01\00\01\01\03\01" "\01\00\01\01\00\01\01\00\01\01"
+    "\01\01\11\01\01\00\01\01\03\01" "\01\00\01\01\00\01\01\00\01\01"
     "\01\00\00\00\00\00\00\00\00\01" "\00\00\00\00\00\00\00\00\00\01"
     "\01\01\00\01\01\00\01\01\01\01" "\01\00\01\01\00\01\01\01\01\01"
-    "\01\01\08\01\01\01\01\01\00\01" "\01\00\01\01\01\01\01\00\01\01"
+    "\01\01\08\01\01\01\01\01\00\01" "\01\00\01\01\0F\01\01\00\01\01"
     "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
     "\01\01\00\01\01\00\01\01\00\01" "\01\00\01\01\00\01\01\00\01\01"
     "\01\01\00\01\01\00\01\01\00\01" "\01\00\01\01\00\01\01\00\01\01"
@@ -3095,7 +3497,7 @@
     "\01\00\01\01\01\01\00\01\00\01" "\00\01\01\00\01\00\01\01\00\01"
     "\01\00\00\00\00\01\00\01\01\01" "\00\01\00\00\00\00\01\00\00\01"
     "\01\01\01\01\00\00\00\01\03\01" "\00\01\00\01\00\00\01\00\01\01"
-    "\01\00\05\01\07\01\01\01\00\01" "\00\00\01\01\01\00\00\00\00\01"
+    "\01\00\05\01\07\01\01\01\00\01" "\00\00\01\01\0F\00\00\00\00\01"
     "\01\00\01\00\00\00\00\00\00\01" "\01\00\00\01\00\01\01\01\01\01"
     "\01\00\01\00\01\01\01\01\01\01" "\00\00\00\00\00\00\00\00\00\01"
 
@@ -3104,7 +3506,7 @@
     "\01\00\00\01\00\00\00\01\01\00" "\01\00\01\01\08\01\01\01\00\01"
     "\01\01\00\01\00\01\00\00\01\00" "\01\00\01\01\02\01\00\00\00\01"
     "\01\00\00\01\01\01\01\00\01\00" "\01\00\01\01\01\01\00\01\00\01"
-    "\01\00\01\01\00\01\00\00\01\00" "\01\00\00\00\00\01\00\01\00\01"
+    "\01\00\01\01\11\01\00\00\01\00" "\01\00\00\00\00\01\00\01\00\01"
     "\01\00\01\00\00\00\01\00\01\00" "\01\00\01\00\00\01\00\01\00\01"
     "\01\00\01\00\01\00\01\00\01\00" "\01\00\01\01\01\01\01\01\00\01"
     "\01\00\00\00\01\00\00\00\01\00" "\00\00\00\00\00\00\00\00\00\01"
@@ -3112,14 +3514,14 @@
     ;; 157488 | maze_007_20x20 = 400 bytes
     "\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01"
     "\01\00\00\00\00\01\03\01\00\00" "\00\00\00\00\00\01\00\06\00\01"
-    "\01\00\01\01\00\01\00\01\00\01" "\01\01\01\01\00\01\00\01\00\01"
+    "\01\00\0F\01\00\01\00\01\00\01" "\01\01\01\01\00\01\00\01\00\01"
     "\01\00\01\00\00\07\00\01\00\00" "\00\00\00\01\00\00\00\01\00\01"
     "\01\00\01\00\01\01\01\01\01\01" "\01\01\00\01\01\01\01\01\00\01"
     "\01\00\01\00\00\00\00\00\00\00" "\00\01\00\00\02\01\05\01\00\01"
     "\01\00\01\01\01\01\01\01\01\01" "\00\01\01\01\01\01\00\01\00\01"
     "\01\00\00\00\00\01\00\00\00\01" "\00\00\00\01\00\00\00\01\00\01"
     "\01\01\01\01\00\01\00\01\01\01" "\01\01\00\01\00\01\01\01\00\01"
-    "\01\00\00\00\00\01\00\00\00\00" "\00\00\00\01\00\00\00\00\00\01"
+    "\01\00\00\00\00\01\00\00\00\00" "\11\00\00\01\00\00\00\00\00\01"
 
     "\01\00\01\01\01\01\01\01\00\01" "\01\01\01\01\01\01\01\01\00\01"
     "\01\00\00\00\00\00\00\00\00\01" "\00\00\00\00\00\00\00\01\00\01"
