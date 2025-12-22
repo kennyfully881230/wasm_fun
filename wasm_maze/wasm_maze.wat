@@ -10,6 +10,9 @@
   (global $maze_cleared       (mut i32) (i32.const 0 ))
   (global $maze_index         (mut i32) (i32.const 0 ))
   (global $maze_init          (mut i32) (i32.const 0 ))
+  (global $mmbtn_load_pushed  (mut i32) (i32.const 1 ))
+  (global $mmbtn_play_pushed  (mut i32) (i32.const 0 ))
+  (global $mmbtn_share_pushed (mut i32) (i32.const 0 ))
   (global $maze_selected      (mut i32) (i32.const 0 ))
   (global $player_mode        (mut i32) (i32.const 0 ))
   (global $player_lucky       (mut i32) (i32.const 0 ))
@@ -74,7 +77,7 @@
         i32.store8
 
         ;; update key status
-        i32.const 158348 ;; memory_address_pointer_for_key_obtain_status
+        i32.const 158728 ;; memory_address_pointer_for_key_obtain_status
         local.get $color_index
         i32.add
         i32.const 1
@@ -87,7 +90,7 @@
     local.get $i
     call $player_to_object_collision
     if
-      i32.const 158348
+      i32.const 158728
       local.get $color_index
       i32.add
       i32.load8_u
@@ -105,7 +108,7 @@
         i32.add        
         i32.const 0x0C ;; indicates unlocked
         i32.store8
-        i32.const 158348
+        i32.const 158728
         local.get $color_index
         i32.add
         i32.const 0x00000000
@@ -147,7 +150,7 @@
           i32.const 8
           i32.lt_s
           if
-            i32.const 158288 ;; address for trophies
+            i32.const 158688 ;; address for trophies
             global.get $maze_index
             i32.add
             i32.const 1
@@ -293,7 +296,7 @@
           i32.const 8
           i32.lt_s
           if
-            i32.const 158304 ;; address for heart trophies
+            i32.const 158704 ;; address for heart trophies
             global.get $maze_index
             i32.add
             i32.const 1
@@ -323,31 +326,35 @@
   )
   
   (func $player_to_object_collision (param $i i32) (result i32)
+    ;; player
     global.get $player_x
-    i32.const 3
-    i32.add
-    global.get $player_y
-    i32.const 6
-    i32.add
-    i32.const 10 ;; player_hitbox_size
-    local.get $i
-    i32.const 20
-    i32.rem_s
-    i32.const 16
-    i32.mul       ;; object_x
-    local.get $i
-    f32.convert_i32_s
-    i32.const 20
-    f32.convert_i32_s
-    f32.div
-    f32.floor
-    i32.trunc_f32_s
-    i32.const 16
-    i32.mul     ;; object_y
-    i32.const 16 ;; object_size
-    call $square_collision
-    i32.const 1 ;; check for true
-    i32.eq
+    i32.const 0x00000003 ;;
+    i32.add              ;; dx1
+    global.get $player_y ;;
+    i32.const 0x00000006 ;;
+    i32.add              ;; dy1
+    i32.const 0x0000000A ;; dw1
+    i32.const 0x0000000A ;; dh1
+    ;; object
+    local.get $i         ;;
+    i32.const 0x00000014 ;;
+    i32.rem_s            ;;
+    i32.const 0x00000010 ;;
+    i32.mul              ;; dx2
+    local.get $i         ;;
+    f32.convert_i32_s    ;;
+    i32.const 0x00000014 ;;
+    f32.convert_i32_s    ;;
+    f32.div              ;;
+    f32.floor            ;;
+    i32.trunc_f32_s      ;;
+    i32.const 0x00000010 ;;
+    i32.mul              ;; dy2
+    i32.const 0x00000010 ;; dw2
+    i32.const 0x00000010 ;; dh2
+    call $rect_collision ;;
+    i32.const 0x00000001 ;;
+    i32.eq               ;; check if true
   )
 
   (func $pushback_player
@@ -683,13 +690,13 @@
         i32.trunc_f32_s
         i32.const 16
         i32.mul
-        i32.const 72             ;; cam_y
+        i32.const 72         ;; cam_y
         i32.add
         global.get $player_y
-        i32.sub                  ;; dy
-        i32.const 0x00000010     ;; dw
-        i32.const 0x00000010     ;; dh
-        i32.const 0xFF000000     ;; color_01
+        i32.sub              ;; dy
+        i32.const 0x00000010 ;; dw
+        i32.const 0x00000010 ;; dh
+        i32.const 0xFF000000 ;; color_01
         i32.const 0xFFF5F5FF        
         i32.const 0xFFF7F7FF
         global.get $timer_30
@@ -700,14 +707,14 @@
         global.get $timer_30
         i32.const 19
         i32.lt_s
-        select                  ;; color_02
-        i32.const 158341
+        select               ;; color_02
+        i32.const 158721        
         i32.load8_u
         i32.const 0xFF000000
-        i32.or                  ;; color_03
-        i32.const 0xFFF04F65    ;; color_04
-        i32.const 0xFF9CE1FF    ;; color_05
-        i32.const 130560        ;; data_address
+        i32.or               ;; color_03
+        i32.const 0xFFF04F65 ;; color_04
+        i32.const 0xFF9CE1FF ;; color_05
+        i32.const 130560     ;; data_address
         call $render_color_indexed_sprite
       end
       ;; check for wasm_block
@@ -930,7 +937,7 @@
         i32.const 19
         i32.lt_s
         select                  ;; color_02
-        i32.const 158341
+        i32.const 158721
         i32.load8_u
         i32.const 0xFF000000
         i32.or                  ;; color_03
@@ -976,12 +983,12 @@
         i32.const 0x00000010     ;; dw
         i32.const 0x00000010     ;; dh
         i32.const 0xFF000000     ;; color_01
-        i32.const 158340
+        i32.const 158720
         i32.load8_u
         i32.const 16
         i32.shl
         i32.sub
-        i32.const 158340
+        i32.const 158720
         i32.load8_u
         i32.add
         i32.const 0xFFF5F5FF        
@@ -1098,59 +1105,35 @@
     end
   )  
   
-  (func $square_collision
-    (param $x1 i32) (param $y1 i32) (param $size1 i32) 
-    (param $x2 i32) (param $y2 i32) (param $size2 i32) 
-    (result i32)
-    (local $x1_end i32) (local $y1_end i32) 
-    (local $x2_end i32) (local $y2_end i32)
-    
-    ;; calculate the right/bottom edges of both squares
-    local.get $x1
-    local.get $size1
+  (func $rect_collision
+  (param $dx1 i32) (param $dy1 i32) (param $dw1 i32) (param $dh1 i32) 
+  (param $dx2 i32) (param $dy2 i32) (param $dw2 i32) (param $dh2 i32) 
+  (result i32)    
+    ;; Check horizontal overlap: (dx1 < dx2 + dw2) && (dx1 + dw1 > dx2)
+    local.get $dx1
+    local.get $dx2
+    local.get $dw2
     i32.add
-    local.set $x1_end
-    
-    local.get $y1
-    local.get $size1
+    i32.lt_s          ;; result of dx1 < dx2_end
+    local.get $dx1
+    local.get $dw1
     i32.add
-    local.set $y1_end
-    
-    local.get $x2
-    local.get $size2
+    local.get $dx2
+    i32.gt_s          ;; result of dx1_end > dx2
+    i32.and           ;; Combine horizontal results
+    ;; Check vertical overlap: (dy1 < dy2 + dh2) && (dy1 + dh1 > dy2)
+    local.get $dy1
+    local.get $dy2
+    local.get $dh2
     i32.add
-    local.set $x2_end
-    
-    local.get $y2
-    local.get $size2
+    i32.lt_s          ;; result of dy1 < dy2_end
+    i32.and           ;; Combine with previous horizontal results
+    local.get $dy1
+    local.get $dh1
     i32.add
-    local.set $y2_end
-    
-    ;; check collision using AABB
-    ;; if (x1 < x2_end && x1_end > x2 && y1 < y2_end && y1_end > y2)
-    local.get $x1
-    local.get $x2_end
-    i32.lt_s
-    if
-      local.get $x1_end
-      local.get $x2
-      i32.gt_s
-      if
-        local.get $y1
-        local.get $y2_end
-        i32.lt_s
-        if
-          local.get $y1_end
-          local.get $y2
-          i32.gt_s
-          if
-            i32.const 1
-            return
-          end
-        end
-      end
-    end
-    i32.const 0
+    local.get $dy2
+    i32.gt_s          ;; result of dy1_end > dy2
+    i32.and           ;; Final combine
   )
 
   ;; scenes
@@ -1265,7 +1248,7 @@
           i32.add
           call $render_color_indexed_sprite
           ;; trophy (only renders if the maze was cleared)
-          i32.const 158288
+          i32.const 158688
           local.get $i
           i32.add
           i32.load8_u
@@ -1301,7 +1284,7 @@
             call $render_color_indexed_sprite
           end
           ;; heart trophy (only renders if unloacked)
-          i32.const 158304
+          i32.const 158704
           local.get $i
           i32.add
           i32.load8_u
@@ -1338,11 +1321,12 @@
           end
           ;; check col
           ;; pointer
-          i32.const 158344
+          i32.const 158724 ;; dx1
           i32.load8_u
-          i32.const 158345
+          i32.const 158725 ;; dy1
           i32.load8_u
-          i32.const 1
+          i32.const 1 ;; dw1
+          i32.const 1 ;; dh1
           ;; button_x
           i32.const 16
           local.get $i
@@ -1364,8 +1348,9 @@
           i32.mul
           i32.add
           ;; button_size
-          i32.const 32
-          call $square_collision
+          i32.const 32 ;; dw2
+          i32.const 32 ;; dh2
+          call $rect_collision
           i32.const 1
           i32.eq
           if
@@ -1560,7 +1545,7 @@
           i32.add
           call $render_color_indexed_sprite
           ;; trophy (only renders if the maze was cleared)
-          i32.const 158288
+          i32.const 158688
           global.get $maze_index
           i32.add
           i32.load8_u
@@ -1596,7 +1581,7 @@
             call $render_color_indexed_sprite
           end
           ;; heart trophy (only renders if unloacked)
-          i32.const 158304
+          i32.const 158704
           global.get $maze_index
           i32.add
           i32.load8_u
@@ -1663,7 +1648,7 @@
       i32.const 0x00000040 ;; dy
       i32.const 0x00000050 ;; dw
       i32.const 0x00000020 ;; dh
-      i32.const 158340     ;; timer_memory_address
+      i32.const 158720     ;; timer_memory_address
       i32.load8_u          ;; value
       i32.const 0xFF000000 ;; base_color
       i32.or               ;; color_01
@@ -1729,13 +1714,13 @@
       end
 
       ;; key_icon_red
-      i32.const 158348
+      i32.const 158728
       i32.load8_u
       i32.const 0x00000001
       i32.eq
       if
-        i32.const 0x00000088 ;; dx
-        i32.const 0x00000098 ;; dy
+        i32.const 0x00000000 ;; dx
+        i32.const 0x00000010 ;; dy
         i32.const 0x00000008 ;; dw
         i32.const 0x00000008 ;; dh
         i32.const 0xFF0000FF ;; color_01
@@ -1748,13 +1733,13 @@
       end
 
       ;; key_icon_green
-      i32.const 158349
+      i32.const 158729
       i32.load8_u
       i32.const 0x00000001
       i32.eq
       if
-        i32.const 0x00000090 ;; dx
-        i32.const 0x00000098 ;; dy
+        i32.const 0x00000008 ;; dx
+        i32.const 0x00000010 ;; dy
         i32.const 0x00000008 ;; dw
         i32.const 0x00000008 ;; dh
         i32.const 0xFF008000 ;; color_01
@@ -1767,13 +1752,13 @@
       end
 
       ;; key_icon_blue
-      i32.const 158350
+      i32.const 158730
       i32.load8_u
       i32.const 0x00000001
       i32.eq
       if
-        i32.const 0x00000098 ;; dx
-        i32.const 0x00000098 ;; dy
+        i32.const 0x00000010 ;; dx
+        i32.const 0x00000010 ;; dy
         i32.const 0x00000008 ;; dw
         i32.const 0x00000008 ;; dh
         i32.const 0xFFFF0000 ;; color_01
@@ -1786,7 +1771,7 @@
       end
 
       ;; trophy
-      i32.const 158288
+      i32.const 158688
       global.get $maze_index
       i32.add
       i32.load8_u
@@ -1807,7 +1792,7 @@
       end
 
       ;; heart
-      i32.const 158304
+      i32.const 158704
       global.get $maze_index
       i32.add
       i32.load8_u
@@ -1828,12 +1813,12 @@
       end
 
       ;; update player position
-      i32.const 158344
+      i32.const 158724
       i32.load8_u
       i32.const 255
       i32.ne
       if
-        i32.const 158345
+        i32.const 158725
         i32.load8_u
         i32.const 80 ;; half of the screen 
         i32.sub
@@ -1848,7 +1833,7 @@
         local.get $mask_copy   ;; Stack: [..., (value XOR mask), mask]
         i32.sub                ;; Stack: [..., ABS(value)] ((value XOR mask) - mask)
 
-        i32.const 158344
+        i32.const 158724
         i32.load8_u
         i32.const 80 ;; half of the screen 
         i32.sub
@@ -1863,7 +1848,7 @@
         i32.sub                ;; Stack: [..., ABS(value)] ((value XOR mask) - mask)
         i32.gt_s
         if
-          i32.const 158345
+          i32.const 158725
           i32.load8_u
           i32.const 72 ;; cam_y
           i32.lt_s
@@ -1885,7 +1870,7 @@
             global.set $player_mode
           end
         else
-          i32.const 158344
+          i32.const 158724
           i32.load8_u 
           i32.const 72 ;; cam_x
           i32.lt_s
@@ -2224,13 +2209,35 @@
     i32.const 134720     ;; memory_address
     call $render_color_indexed_sprite
 
+    ;; show modal for maze_maker_load if true
+    global.get $mmbtn_load_pushed
+    i32.const 1
+    i32.eq
+    if
+      ;; maze_maker_modal_02_80x48
+      i32.const 40 ;; dx
+      i32.const 56 ;; dy
+      i32.const 80 ;; dw
+      i32.const 48 ;; dh
+      i32.const 0xFFFFFFFF ;; color_01
+      i32.const 0xFF000000 ;; color_02
+      i32.const 0xFF0000FF ;; color_03
+      i32.const 0xFF76F1FF ;; color_04
+      i32.const 0x00000000 ;; color_05
+      i32.const 140992     ;; memory_address
+      call $render_color_indexed_sprite
+    end
+    ;; $rect_collision
+    ;; 
+    ;; the bottom of this is to show colissions etc
+
     ;; todo: make a better way to exit maze edit mode
-    i32.const 158344
+    i32.const 158724
     i32.load8_u ;; pointer_x
     i32.const 0x00000010
     i32.lt_s
     if
-      i32.const 158345
+      i32.const 158725
       i32.load8_u ;; pointer_y
       i32.const 0x00000010
       i32.lt_s
@@ -2274,11 +2281,11 @@
 	end
 
     ;; render_pointer
-    i32.const 158344     ;; dx_data_address
+    i32.const 158724     ;; dx_data_address
     i32.load8_u          ;; dx_value
     i32.const 0x00000008 ;; offset -8
     i32.sub              ;; visually centering dx
-    i32.const 158345     ;; dy_data_address
+    i32.const 158725     ;; dy_data_address
     i32.load8_u          ;; dy_value
     i32.const 0x00000008 ;; offset -8
     i32.sub              ;; visually centering dy
@@ -2325,29 +2332,29 @@
     end
 
     ;; TIMERS
-    i32.const 158340 ;; timer_01
-    i32.const 158340
+    i32.const 158720 ;; timer_01
+    i32.const 158720
     i32.load8_u
     i32.const 8
     i32.add
     i32.store8
     
-    i32.const 158341 ;; timer_02
-    i32.const 158341
+    i32.const 158721 ;; timer_02
+    i32.const 158721
     i32.load8_u
     i32.const 4
     i32.add
     i32.store8
 
-    i32.const 158342 ;; timer_03
-    i32.const 158342
+    i32.const 158722 ;; timer_03
+    i32.const 158722
     i32.load8_u
     i32.const 2
     i32.add
     i32.store8
 
-    i32.const 158343 ;; timer_04
-    i32.const 158343
+    i32.const 158723 ;; timer_04
+    i32.const 158723
     i32.load8_u
     i32.const 1
     i32.add
@@ -3555,37 +3562,48 @@
     "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
     "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
     "\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01"
-    ;; 158288 | maze_cleared_data_trophy = 16 bytes | 0 = false 1 = true
+    ;; 158288 | maze_009_20x20 = 400 bytes
+    "\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01"
+    "\01\00\03\04\05\06\07\08\02\01" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\01\01\01\01\01\01\01\01" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\00\00\00\00\00\00\00\00\00" "\00\00\00\00\00\00\00\00\00\01"
+    "\01\01\01\01\01\01\01\01\01\01" "\01\01\01\01\01\01\01\01\01\01"
+    ;; 158688 | maze_cleared_data_trophy = 16 bytes | 0 = false 1 = true
     "\00\00\00\00"
     "\00\00\00\00"
     "\00\00\00\00"
     "\00\00\00\00" ;; the last 3 bytes are for padding
-    ;; 158304 | maze_lucky_trophy = 16 bytes | 0 = false 1 = true
+    ;; 158704 | maze_lucky_trophy = 16 bytes | 0 = false 1 = true
     "\00\00\00\00"
     "\00\00\00\00"
     "\00\00\00\00"
     "\00\00\00\00" ;; the last 3 bytes are for padding
-    ;; 158320 | data_notes = 16 bytes
-    "\06\01" ;; 262 = DO C4 (Middle C)
-    "\26\01" ;; 294 = RE D4
-    "\4A\01" ;; 330 = MI E4
-    "\5D\01" ;; 349 = FA F4
-    "\88\01" ;; 392 = SO (Sol) G4
-    "\B8\01" ;; 440 = LA A4
-    "\EE\01" ;; 494 = TI (Si) B4
-    "\0B\02" ;; 523 = DO C5 (High C)
-    ;; 158336 | color_mixer = 4 bytes
-    "\00\00\00\FF"
-    ;; 158340 | counter_256_up = 4 byte
+    ;; 158720 | timers = 4 byte
     "\00" ;; timer_01_032_step
     "\00" ;; timer_02_064_step
     "\00" ;; timer_03_128_step
     "\00" ;; timer_04_256_step
-    ;; 158344 | pointer_x and pointer_y = 4 bytes
+    ;; 158724 | pointer_x and pointer_y = 4 bytes
     "\FF\FF\00\00" ;; the last 2 bytes are for padding
-    ;; 158348 | key obtain status (red, green, blue) = 4 bytes
+    ;; 158728 | key obtain status (red, green, blue) = 4 bytes
     "\00\00\00\00" ;; the last byte is for padding
-    ;; 158352 | reserved for future data
+    ;; 158732 | reserved for future data
   )
 )
 
