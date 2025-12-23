@@ -10,9 +10,7 @@
   (global $maze_cleared       (mut i32) (i32.const 0 ))
   (global $maze_index         (mut i32) (i32.const 0 ))
   (global $maze_init          (mut i32) (i32.const 0 ))
-  (global $mmbtn_load_pushed  (mut i32) (i32.const 1 ))
-  (global $mmbtn_play_pushed  (mut i32) (i32.const 0 ))
-  (global $mmbtn_share_pushed (mut i32) (i32.const 0 ))
+  (global $mmbtn_index        (mut i32) (i32.const 0 ))
   (global $maze_selected      (mut i32) (i32.const 0 ))
   (global $player_mode        (mut i32) (i32.const 0 ))
   (global $player_lucky       (mut i32) (i32.const 0 ))
@@ -1923,7 +1921,14 @@
       end
   )
 
-  (func $scene_maze_maker (local $i i32) (local $j i32)
+  (func $scene_maze_maker (local $i i32) (local $j i32) (local $pointer_x i32) (local $pointer_y i32)
+    i32.const 158724
+    i32.load8_u          
+    local.set $pointer_x
+    i32.const 158725
+    i32.load8_u          
+    local.set $pointer_y
+
     i32.const 0xFFFFFFFF
     call $rgb_fill_screen
 
@@ -2191,34 +2196,35 @@
     i32.const 136512     ;; memory_address
     call $render_color_indexed_sprite
 
-    ;; todo: make a better way to show maze_maker_selected_indicator
+    ;; maze_maker_selected_indicator
     i32.const 0x00000088 ;; dx
     i32.const 0x00000008 ;; dy
     i32.const 0x00000010 ;; dw
     i32.const 0x00000010 ;; dh
-    i32.const 0xFF0000FF
-    i32.const 0xFF000080
-    global.get $timer_60
-    i32.const 0x0000001D
-    i32.lt_s
-    select               ;; color_01
+    i32.const 0xFF0000FF ;; option_01
+    i32.const 0xFF000080 ;; option_02
+    i32.const 0x00026C01 ;; memory_address
+    i32.load8_u          ;; timer_64_step_value
+    i32.const 0x0000001F ;; 31 
+    i32.lt_s             ;; < 31
+    select               ;; color_01 = timer_64_step_value < 31 ? option_01 : option_02
     i32.const 0x00000000 ;; color_02
     i32.const 0x00000000 ;; color_03
     i32.const 0x00000000 ;; color_04
     i32.const 0x00000000 ;; color_05
-    i32.const 134720     ;; memory_address
+    i32.const 0x00020E40 ;; memory_address
     call $render_color_indexed_sprite
 
     ;; show modal for maze_maker_load if true
-    global.get $mmbtn_load_pushed
-    i32.const 1
+    global.get $mmbtn_index
+    i32.const 0x00000001
     i32.eq
     if
       ;; maze_maker_modal_02_80x48
-      i32.const 40 ;; dx
-      i32.const 56 ;; dy
-      i32.const 80 ;; dw
-      i32.const 48 ;; dh
+      i32.const 40         ;; dx
+      i32.const 56         ;; dy
+      i32.const 80         ;; dw
+      i32.const 48         ;; dh
       i32.const 0xFFFFFFFF ;; color_01
       i32.const 0xFF000000 ;; color_02
       i32.const 0xFF0000FF ;; color_03
@@ -2226,24 +2232,154 @@
       i32.const 0x00000000 ;; color_05
       i32.const 140992     ;; memory_address
       call $render_color_indexed_sprite
+      ;; check if pushing close button
+      ;; pointer
+      local.get $pointer_x ;; dx1
+      local.get $pointer_y ;; dy1
+      i32.const 0x00000001 ;; dw1
+      i32.const 0x00000001 ;; dh1
+      ;; modal_close_button
+      i32.const 40         ;; dx2
+      i32.const 56         ;; dy2
+      i32.const 0x00000008 ;; dw2
+      i32.const 0x00000008 ;; dh2
+      call $rect_collision
+      i32.const 0x00000001
+      i32.eq
+      if
+        i32.const 0x00000000
+        global.set $mmbtn_index
+      end
+      ;; okay_button
+      local.get $pointer_x ;; dx1
+      local.get $pointer_y ;; dy1
+      i32.const 0x00000001 ;; dw1
+      i32.const 0x00000001 ;; dh1
+      ;; modal_close_button
+      i32.const 40         ;; dx2
+      i32.const 88         ;; dy2
+      i32.const 80 ;; dw2
+      i32.const 0x00000010 ;; dh2
+      call $rect_collision
+      i32.const 0x00000001
+      i32.eq
+      if
+        i32.const 0x00000000
+        global.set $mmbtn_index
+      end
     end
-    ;; $rect_collision
-    ;; 
-    ;; the bottom of this is to show colissions etc
 
-    ;; todo: make a better way to exit maze edit mode
-    i32.const 158724
-    i32.load8_u ;; pointer_x
-    i32.const 0x00000010
-    i32.lt_s
+    ;; show modal for maze_maker_share if true
+    global.get $mmbtn_index
+    i32.const 0x00000002
+    i32.eq
     if
-      i32.const 158725
-      i32.load8_u ;; pointer_y
-      i32.const 0x00000010
-      i32.lt_s
+      ;; maze_maker_modal_03_80x48
+      i32.const 40         ;; dx
+      i32.const 56         ;; dy
+      i32.const 80         ;; dw
+      i32.const 48         ;; dh
+      i32.const 0xFFFFFFFF ;; color_01
+      i32.const 0xFF000000 ;; color_02
+      i32.const 0xFF0000FF ;; color_03
+      i32.const 0xFF76F1FF ;; color_04
+      i32.const 0x00000000 ;; color_05
+      i32.const 144832     ;; memory_address
+      call $render_color_indexed_sprite
+      ;; check if pushing close button
+      ;; pointer
+      local.get $pointer_x ;; dx1
+      local.get $pointer_y ;; dy1
+      i32.const 0x00000001 ;; dw1
+      i32.const 0x00000001 ;; dh1
+      ;; modal_close_button
+      i32.const 40         ;; dx2
+      i32.const 56         ;; dy2
+      i32.const 0x00000008 ;; dw2
+      i32.const 0x00000008 ;; dh2
+      call $rect_collision
+      i32.const 0x00000001
+      i32.eq
+      if
+        i32.const 0x00000000
+        global.set $mmbtn_index
+      end
+      ;; okay_button
+      local.get $pointer_x ;; dx1
+      local.get $pointer_y ;; dy1
+      i32.const 0x00000001 ;; dw1
+      i32.const 0x00000001 ;; dh1
+      ;; modal_close_button
+      i32.const 40         ;; dx2
+      i32.const 88         ;; dy2
+      i32.const 80 ;; dw2
+      i32.const 0x00000010 ;; dh2
+      call $rect_collision
+      i32.const 0x00000001
+      i32.eq
+      if
+        i32.const 0x00000000
+        global.set $mmbtn_index
+      end
+    end
+
+    ;; button col
+    global.get $mmbtn_index
+    i32.const 0x00000000
+    i32.eq
+    if
+      ;; check if pushing close button
+      local.get $pointer_x ;; dx1
+      local.get $pointer_y ;; dy1
+      i32.const 0x00000001 ;; dw1
+      i32.const 0x00000001 ;; dh1
+      ;; close button
+      i32.const 0x00000000 ;; dx2
+      i32.const 0x00000000 ;; dy2
+      i32.const 0x00000010 ;; dw2
+      i32.const 0x00000010 ;; dh2
+      call $rect_collision 
+      i32.const 0x00000001 
+      i32.eq
       if
         i32.const 0x00000001 ;; go back to scene_maze_select
         global.set $scene_index
+      end
+
+      ;; check if pushing load button
+      local.get $pointer_x ;; dx1
+      local.get $pointer_y ;; dy1
+      i32.const 0x00000001 ;; dw1
+      i32.const 0x00000001 ;; dh1
+      ;; load_button
+      i32.const 0x0000003C ;; dx2
+      i32.const 0x00000088 ;; dy2
+      i32.const 0x00000028 ;; dw2
+      i32.const 0x00000010 ;; dh2
+      call $rect_collision 
+      i32.const 0x00000001 
+      i32.eq
+      if
+        i32.const 0x00000001
+        global.set $mmbtn_index
+      end
+
+      ;; check if pushing share button
+      local.get $pointer_x ;; dx1
+      local.get $pointer_y ;; dy1
+      i32.const 0x00000001 ;; dw1
+      i32.const 0x00000001 ;; dh1
+      ;; share_button
+      i32.const 0x00000070 ;; dx2
+      i32.const 0x00000088 ;; dy2
+      i32.const 0x00000028 ;; dw2
+      i32.const 0x00000010 ;; dh2
+      call $rect_collision 
+      i32.const 0x00000001 
+      i32.eq
+      if
+        i32.const 0x00000002
+        global.set $mmbtn_index
       end
     end
   )
